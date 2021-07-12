@@ -7,4 +7,5 @@ package-lock.json
 **/.idea
 **/__pycache__
 lib/
+!dist/lib
 src/
