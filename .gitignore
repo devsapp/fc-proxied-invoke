@@ -1,0 +1,10 @@
+node_modules
+**/.s
+
+package-lock.json
+
+**/.vscode
+**/.idea
+**/__pycache__
+lib/
+src/
