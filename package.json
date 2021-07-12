@@ -1,6 +1,6 @@
 {
   "name": "fc-tunnel-invoke",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "This is a component demo for Serverless Devs Tool ",
   "keywords": [
     "Serverless",
@@ -28,7 +28,6 @@
     "build": "npm run doc && tsc",
     "postbuild": "npm run doc",
     "obfuscate": "rm -rf ./dist && npm i && npm run build && javascript-obfuscator ./lib --output ./dist",
-    "nccbuild": "npm run build && ncc build lib/index.js -m -o dist",
     "doc": "npx typedoc src/index.ts --json doc/doc.json --out doc"
   },
   "dependencies": {
@@ -58,6 +57,7 @@
     "node-watch": "^0.7.1",
     "dev-null": "^0.1.1",
     "git-ignore-parser": "^0.0.2",
+    "ignore": "^5.1.8",
     "request": "^2.88.2",
     "promise.prototype.finally": "^3.1.2"
   },
