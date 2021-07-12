@@ -1,6 +1,6 @@
 {
 	"id": 0,
-	"name": "fc-tunnel-invoke",
+	"name": "fc-proxied-invoke",
 	"kind": 0,
 	"kindString": "Project",
 	"flags": {},
