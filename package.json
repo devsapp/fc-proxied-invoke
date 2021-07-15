@@ -1,6 +1,6 @@
 {
   "name": "fc-proxied-invoke",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "This is a component demo for Serverless Devs Tool ",
   "keywords": [
     "Serverless",
@@ -27,7 +27,7 @@
     "publish": "npm run build && s cli platform publish",
     "build": "npm run doc && tsc",
     "postbuild": "npm run doc",
-    "obfuscate": "rm -rf ./dist && npm i && npm run build && javascript-obfuscator ./lib --output ./dist",
+    "obfuscate": "rm -rf ./dist && rm -rf node_modules && rm -rf package-lock.json && npm i && mv -f .tmp/index.d.ts node_modules/draftlog/ && npm run build && javascript-obfuscator ./lib --output ./dist",
     "doc": "npx typedoc src/index.ts --json doc/doc.json --out doc"
   },
   "dependencies": {
