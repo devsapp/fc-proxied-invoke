@@ -50,7 +50,7 @@ $ s clean
 $ s setup --config vscode --debug-port 3000
 ```
 
-命令执行完成后会在末尾出现如下调试配置部分：
+命令执行完成后会生成 .vscode/launch.json，其中包含如下调试配置：
 
 ```bash
 ///////////////// config begin /////////////////
@@ -76,6 +76,8 @@ $ s setup --config vscode --debug-port 3000
 }
 ///////////////// config end /////////////////
 ```
+
+若您之前已有 .vscode/launch.json 文件，则需要手动将上述 `config begin` 与 `config end` 之间的内容粘贴到 .vscode/launch.json 中。
 
 此时程序会阻塞住，若直接执行下一步 `Invoke`，进行的是正常模式的本地调用流程。若要进行断点调试，需要在首次调试时进行如下配置：
 
