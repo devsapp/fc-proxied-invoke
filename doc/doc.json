@@ -20039,7 +20039,7 @@
 						"type": "intrinsic",
 						"name": "string"
 					},
-					"defaultValue": "'0.0.6'"
+					"defaultValue": "'0.0.7'"
 				}
 			],
 			"groups": [
