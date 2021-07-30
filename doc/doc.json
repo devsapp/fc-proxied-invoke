@@ -13129,7 +13129,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 44,
+									"line": 45,
 									"character": 19
 								}
 							],
@@ -13155,7 +13155,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 67,
+									"line": 68,
 									"character": 21
 								}
 							],
@@ -13180,7 +13180,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 51,
+									"line": 52,
 									"character": 19
 								}
 							],
@@ -13205,7 +13205,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 52,
+									"line": 53,
 									"character": 25
 								}
 							],
@@ -13230,7 +13230,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 73,
+									"line": 74,
 									"character": 17
 								}
 							],
@@ -13257,7 +13257,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 55,
+									"line": 56,
 									"character": 34
 								}
 							],
@@ -13287,7 +13287,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 61,
+									"line": 62,
 									"character": 21
 								}
 							],
@@ -13313,7 +13313,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 57,
+									"line": 58,
 									"character": 20
 								}
 							],
@@ -13339,7 +13339,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 56,
+									"line": 57,
 									"character": 21
 								}
 							],
@@ -13365,7 +13365,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 69,
+									"line": 70,
 									"character": 25
 								}
 							],
@@ -13391,7 +13391,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 60,
+									"line": 61,
 									"character": 24
 								}
 							],
@@ -13417,7 +13417,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 64,
+									"line": 65,
 									"character": 22
 								}
 							],
@@ -13442,7 +13442,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 49,
+									"line": 50,
 									"character": 26
 								}
 							],
@@ -13468,7 +13468,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 47,
+									"line": 48,
 									"character": 24
 								}
 							],
@@ -13493,7 +13493,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 53,
+									"line": 54,
 									"character": 21
 								}
 							],
@@ -13519,7 +13519,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 62,
+									"line": 63,
 									"character": 18
 								}
 							],
@@ -13545,7 +13545,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 71,
+									"line": 72,
 									"character": 18
 								}
 							],
@@ -13571,7 +13571,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 58,
+									"line": 59,
 									"character": 22
 								}
 							],
@@ -13597,7 +13597,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 63,
+									"line": 64,
 									"character": 21
 								}
 							],
@@ -13633,7 +13633,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 72,
+									"line": 73,
 									"character": 28
 								}
 							],
@@ -13659,7 +13659,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 65,
+									"line": 66,
 									"character": 21
 								}
 							],
@@ -13685,7 +13685,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 70,
+									"line": 71,
 									"character": 23
 								}
 							],
@@ -13710,7 +13710,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 45,
+									"line": 46,
 									"character": 18
 								}
 							],
@@ -13755,7 +13755,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 50,
+									"line": 51,
 									"character": 19
 								}
 							],
@@ -13780,7 +13780,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 48,
+									"line": 49,
 									"character": 25
 								}
 							],
@@ -13806,7 +13806,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 46,
+									"line": 47,
 									"character": 23
 								}
 							],
@@ -13832,7 +13832,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 74,
+									"line": 75,
 									"character": 30
 								}
 							],
@@ -13858,7 +13858,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 59,
+									"line": 60,
 									"character": 18
 								}
 							],
@@ -13884,7 +13884,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 68,
+									"line": 69,
 									"character": 23
 								}
 							],
@@ -13910,7 +13910,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 54,
+									"line": 55,
 									"character": 25
 								}
 							],
@@ -13937,7 +13937,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 75,
+									"line": 76,
 									"character": 34
 								}
 							],
@@ -13964,7 +13964,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 66,
+									"line": 67,
 									"character": 27
 								}
 							],
@@ -14098,7 +14098,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 177,
+									"line": 178,
 									"character": 19
 								}
 							],
@@ -14141,7 +14141,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 145,
+									"line": 146,
 									"character": 20
 								}
 							],
@@ -14219,7 +14219,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 169,
+									"line": 170,
 									"character": 29
 								}
 							],
@@ -14256,7 +14256,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 99,
+									"line": 100,
 									"character": 12
 								}
 							],
@@ -14400,7 +14400,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 160,
+									"line": 161,
 									"character": 25
 								}
 							],
@@ -14443,7 +14443,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 149,
+									"line": 150,
 									"character": 24
 								}
 							],
@@ -14799,7 +14799,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 44,
+									"line": 45,
 									"character": 19
 								}
 							],
@@ -14820,7 +14820,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 67,
+									"line": 68,
 									"character": 21
 								}
 							],
@@ -14840,7 +14840,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 51,
+									"line": 52,
 									"character": 19
 								}
 							],
@@ -14860,7 +14860,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 52,
+									"line": 53,
 									"character": 25
 								}
 							],
@@ -14880,7 +14880,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 73,
+									"line": 74,
 									"character": 17
 								}
 							],
@@ -14902,7 +14902,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 55,
+									"line": 56,
 									"character": 34
 								}
 							],
@@ -14927,7 +14927,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 61,
+									"line": 62,
 									"character": 21
 								}
 							],
@@ -14948,7 +14948,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 57,
+									"line": 58,
 									"character": 20
 								}
 							],
@@ -14969,7 +14969,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 56,
+									"line": 57,
 									"character": 21
 								}
 							],
@@ -14990,7 +14990,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 69,
+									"line": 70,
 									"character": 25
 								}
 							],
@@ -15011,7 +15011,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 60,
+									"line": 61,
 									"character": 24
 								}
 							],
@@ -15032,7 +15032,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 64,
+									"line": 65,
 									"character": 22
 								}
 							],
@@ -15052,7 +15052,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 49,
+									"line": 50,
 									"character": 26
 								}
 							],
@@ -15073,7 +15073,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 47,
+									"line": 48,
 									"character": 24
 								}
 							],
@@ -15093,7 +15093,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 53,
+									"line": 54,
 									"character": 21
 								}
 							],
@@ -15114,7 +15114,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 62,
+									"line": 63,
 									"character": 18
 								}
 							],
@@ -15135,7 +15135,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 71,
+									"line": 72,
 									"character": 18
 								}
 							],
@@ -15156,7 +15156,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 58,
+									"line": 59,
 									"character": 22
 								}
 							],
@@ -15177,7 +15177,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 63,
+									"line": 64,
 									"character": 21
 								}
 							],
@@ -15208,7 +15208,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 72,
+									"line": 73,
 									"character": 28
 								}
 							],
@@ -15229,7 +15229,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 65,
+									"line": 66,
 									"character": 21
 								}
 							],
@@ -15250,7 +15250,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 70,
+									"line": 71,
 									"character": 23
 								}
 							],
@@ -15270,7 +15270,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 45,
+									"line": 46,
 									"character": 18
 								}
 							],
@@ -15290,7 +15290,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 50,
+									"line": 51,
 									"character": 19
 								}
 							],
@@ -15310,7 +15310,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 48,
+									"line": 49,
 									"character": 25
 								}
 							],
@@ -15331,7 +15331,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 46,
+									"line": 47,
 									"character": 23
 								}
 							],
@@ -15352,7 +15352,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 74,
+									"line": 75,
 									"character": 30
 								}
 							],
@@ -15373,7 +15373,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 59,
+									"line": 60,
 									"character": 18
 								}
 							],
@@ -15394,7 +15394,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 68,
+									"line": 69,
 									"character": 23
 								}
 							],
@@ -15415,7 +15415,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 54,
+									"line": 55,
 									"character": 25
 								}
 							],
@@ -15437,7 +15437,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 75,
+									"line": 76,
 									"character": 34
 								}
 							],
@@ -15459,7 +15459,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 66,
+									"line": 67,
 									"character": 27
 								}
 							],
@@ -15477,7 +15477,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 177,
+									"line": 178,
 									"character": 19
 								}
 							],
@@ -15510,7 +15510,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 145,
+									"line": 146,
 									"character": 20
 								}
 							],
@@ -15545,7 +15545,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 169,
+									"line": 170,
 									"character": 29
 								}
 							],
@@ -15572,7 +15572,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 99,
+									"line": 100,
 									"character": 12
 								}
 							],
@@ -15605,7 +15605,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 160,
+									"line": 161,
 									"character": 25
 								}
 							],
@@ -15638,7 +15638,7 @@
 							"sources": [
 								{
 									"fileName": "lib/local-invoke/invoke/invoke.ts",
-									"line": 149,
+									"line": 150,
 									"character": 24
 								}
 							],
@@ -15725,7 +15725,7 @@
 					"sources": [
 						{
 							"fileName": "lib/local-invoke/invoke/invoke.ts",
-							"line": 43,
+							"line": 44,
 							"character": 27
 						}
 					],
@@ -19869,6 +19869,46 @@
 			"flags": {},
 			"children": [
 				{
+					"id": 1150,
+					"name": "isFalseValue",
+					"kind": 64,
+					"kindString": "Function",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "lib/utils/utils.ts",
+							"line": 11,
+							"character": 28
+						}
+					],
+					"signatures": [
+						{
+							"id": 1151,
+							"name": "isFalseValue",
+							"kind": 4096,
+							"kindString": "Call signature",
+							"flags": {},
+							"parameters": [
+								{
+									"id": 1152,
+									"name": "val",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "boolean"
+							}
+						}
+					]
+				},
+				{
 					"id": 1147,
 					"name": "mark",
 					"kind": 64,
@@ -19877,7 +19917,7 @@
 					"sources": [
 						{
 							"fileName": "lib/utils/utils.ts",
-							"line": 1,
+							"line": 3,
 							"character": 20
 						}
 					],
@@ -19914,6 +19954,7 @@
 					"title": "Functions",
 					"kind": 64,
 					"children": [
+						1150,
 						1147
 					]
 				}
@@ -19927,14 +19968,14 @@
 			]
 		},
 		{
-			"id": 1150,
+			"id": 1153,
 			"name": "lib/validate",
 			"kind": 1,
 			"kindString": "Module",
 			"flags": {},
 			"children": [
 				{
-					"id": 1151,
+					"id": 1154,
 					"name": "validateCredentials",
 					"kind": 64,
 					"kindString": "Function",
@@ -19948,14 +19989,14 @@
 					],
 					"signatures": [
 						{
-							"id": 1152,
+							"id": 1155,
 							"name": "validateCredentials",
 							"kind": 4096,
 							"kindString": "Call signature",
 							"flags": {},
 							"parameters": [
 								{
-									"id": 1153,
+									"id": 1156,
 									"name": "creds",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -19980,7 +20021,7 @@
 					"title": "Functions",
 					"kind": 64,
 					"children": [
-						1151
+						1154
 					]
 				}
 			],
@@ -19993,14 +20034,14 @@
 			]
 		},
 		{
-			"id": 1154,
+			"id": 1157,
 			"name": "pkg",
 			"kind": 1,
 			"kindString": "Module",
 			"flags": {},
 			"children": [
 				{
-					"id": 1155,
+					"id": 1158,
 					"name": "PKG_NAME",
 					"kind": 32,
 					"kindString": "Variable",
@@ -20021,7 +20062,7 @@
 					"defaultValue": "'fc-proxied-invoke'"
 				},
 				{
-					"id": 1156,
+					"id": 1159,
 					"name": "PKG_VERSION",
 					"kind": 32,
 					"kindString": "Variable",
@@ -20039,7 +20080,7 @@
 						"type": "intrinsic",
 						"name": "string"
 					},
-					"defaultValue": "'0.0.7'"
+					"defaultValue": "'0.0.8'"
 				}
 			],
 			"groups": [
@@ -20047,8 +20088,8 @@
 					"title": "Variables",
 					"kind": 32,
 					"children": [
-						1155,
-						1156
+						1158,
+						1159
 					]
 				}
 			],
@@ -20114,8 +20155,8 @@
 				1137,
 				1141,
 				1146,
-				1150,
-				1154
+				1153,
+				1157
 			]
 		}
 	]
