@@ -6,8 +6,7 @@ package-lock.json
 **/.vscode
 **/.idea
 **/__pycache__
-lib/
-!dist/lib
-src/
+.DS_Store
+
 .tmp
 example/java8-event/target
