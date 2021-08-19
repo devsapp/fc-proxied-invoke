@@ -640,7 +640,8 @@ export async function startContainer(opts: any, outputStream?: any, errorStream?
                 AttachStdin: stdin,
                 AttachStdout: true,
                 AttachStderr: true,
-                WorkingDir: cwd
+                WorkingDir: cwd,
+                User: 'root'
             };
             if (cmd !== []) {
                 options.Cmd = cmd;

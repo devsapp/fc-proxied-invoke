@@ -25,7 +25,7 @@ import {
 } from '@alicloud/tunnel-service20210509';
 import Client from '@alicloud/tunnel-service20210509';
 import {TriggerConfig} from "./interface/fc-trigger";
-import {genProxyContainerName, getHttpTrigger, isAutoConfig} from "./definition";
+import {genProxyContainerName, getHttpTrigger} from "./definition";
 import {setSigint} from "./utils/process";
 import {writeEventToStreamAndClose} from "./utils/stream";
 import {CustomDomainConfig, RouteConfig} from "./interface/fc-custom-domain";
@@ -218,7 +218,8 @@ export default class TunnelService {
         // 开启公网访问
         helperServiceConfig.internetAccess = true;
         // 删除 nas 配置
-        if (isAutoConfig(helperServiceConfig?.nasConfig)) { delete helperServiceConfig.nasConfig; }
+        // if (isAutoConfig(helperServiceConfig?.nasConfig)) { delete helperServiceConfig.nasConfig; }
+        delete helperServiceConfig.nasConfig;
         return helperServiceConfig;
     }
 

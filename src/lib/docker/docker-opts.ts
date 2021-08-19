@@ -15,7 +15,7 @@ export const DOCKER_REGISTRIES: string[] = [
   "registry.cn-beijing.aliyuncs.com",
   "registry.hub.docker.com"
 ];
-const IMAGE_VERSION: string = process.env.FC_DOCKER_VERSION || '1.9.18';
+const IMAGE_VERSION: string = process.env.FC_DOCKER_VERSION || '1.9.19';
 
 
 let DOCKER_REGISTRY_CACHE;
@@ -149,7 +149,8 @@ async function genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, 
   const hostOpts: any = {
     HostConfig: {
       AutoRemove: true,
-      Mounts: mounts
+      Mounts: mounts,
+      Privileged: true
     }
   };
   if (!_.isEmpty(proxyContainerName)) {
@@ -214,6 +215,7 @@ function genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd,
     HostConfig: {
       AutoRemove: true,
       Mounts: mounts,
+      Privileged: true
     }
   };
   if (!_.isEmpty(proxyContainerName)) {

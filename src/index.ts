@@ -3,24 +3,24 @@ import { InputProps, ICredentials } from './common/entity';
 import _ from 'lodash';
 import * as core from '@serverless-devs/core';
 import StdoutFormatter from './lib/component/stdout-formatter';
-import {IProperties} from "./lib/interface/fc-tunnel-invoke";
-import {ServiceConfig} from "./lib/interface/fc-service";
-import {TriggerConfig} from "./lib/interface/fc-trigger";
-import {FunctionConfig} from "./lib/interface/fc-function";
-import {CustomDomainConfig} from "./lib/interface/fc-custom-domain";
-import path from "path";
-import {detectNasBaseDir, updateCodeUriWithBuildPath} from "./lib/devs";
-import TunnelService from "./lib/tunnel-service";
-import LocalInvoke from "./lib/local-invoke/local-invoke";
-import {validateCredentials} from "./lib/validate";
-import {getHttpTrigger} from "./lib/definition";
-import {getDebugOptions} from "./lib/local-invoke/debug";
-import {ensureTmpDir} from "./lib/utils/path";
-import {Session} from "./lib/interface/session";
-
+import { IProperties } from './lib/interface/fc-tunnel-invoke';
+import { ServiceConfig } from './lib/interface/fc-service';
+import { TriggerConfig } from './lib/interface/fc-trigger';
+import { FunctionConfig } from './lib/interface/fc-function';
+import { CustomDomainConfig } from './lib/interface/fc-custom-domain';
+import path from 'path';
+import { detectNasBaseDir, updateCodeUriWithBuildPath } from './lib/devs';
+import TunnelService from './lib/tunnel-service';
+import LocalInvoke from './lib/local-invoke/local-invoke';
+import { validateCredentials } from './lib/validate';
+import { getHttpTrigger, isAutoConfig } from './lib/definition';
+import { getDebugOptions } from './lib/local-invoke/debug';
+import { ensureTmpDir } from './lib/utils/path';
+import { Session } from './lib/interface/session';
+import { VpcConfig } from './lib/interface/vpc'
+import { NasConfig } from './lib/interface/nas'
 
 export default class FcTunnelInvokeComponent {
-
   static readonly supportedDebugIde: string[] = ['vscode', 'intellij'];
 
   async report(componentName: string, command: string, accountID?: string, access?: string): Promise<void> {
@@ -60,9 +60,10 @@ export default class FcTunnelInvokeComponent {
 
     const projectName: string = project?.projectName;
     const { region } = properties;
-    const parsedArgs: {[key: string]: any} = core.commandParse(inputs, {
+    const parsedArgs: { [key: string]: any } = core.commandParse(inputs, {
       boolean: ['help'],
-      alias: { help: 'h' } });
+      alias: { help: 'h' },
+    });
     const argsData: any = parsedArgs?.data || {};
     if (argsData?.help) {
       return {
@@ -94,10 +95,9 @@ export default class FcTunnelInvokeComponent {
       devsPath,
       nasBaseDir,
       baseDir,
-      access
+      access,
     };
   }
-
 
   /**
    * setup
@@ -118,7 +118,7 @@ export default class FcTunnelInvokeComponent {
       isHelp,
       access,
       appName,
-      curPath
+      curPath,
     } = await this.handlerInputs(inputs);
 
     if (isHelp) {
@@ -126,31 +126,73 @@ export default class FcTunnelInvokeComponent {
       return;
     }
     // TODO: inputs validation
-    const parsedArgs: {[key: string]: any} = core.commandParse(inputs, {
+    const parsedArgs: { [key: string]: any } = core.commandParse(inputs, {
       boolean: ['debug'],
       alias: {
-        'help': 'h',
-        'debug-port': 'd'
-      }
+        help: 'h',
+        'debug-port': 'd',
+      },
     });
     const argsData: any = parsedArgs?.data || {};
-    const {
-      debugPort,
-      debugIde,
-      debuggerPath,
-      debugArgs,
-    } = getDebugOptions(argsData);
+    const { debugPort, debugIde, debuggerPath, debugArgs } = getDebugOptions(argsData);
     if (debugIde && !FcTunnelInvokeComponent.supportedDebugIde.includes(_.toLower(debugIde))) {
       logger.error(`Unsupported ide: ${debugIde} for debugging.Only ${FcTunnelInvokeComponent.supportedDebugIde} are supported`);
       return;
     }
-    const tunnelService: TunnelService = new TunnelService(creds, serviceConfig, functionConfig, region, access, appName, curPath, triggerConfigList, customDomainConfigList, debugPort, debugIde);
+
+    const vpcConfig: VpcConfig | string = serviceConfig.vpcConfig;
+    const nasConfig: NasConfig |string = serviceConfig.nasConfig;
+
+    // Judge the validity of vpc and nas configuration
+    const isVpcAuto: boolean = isAutoConfig(serviceConfig.vpcConfig)
+    
+    if (!isVpcAuto && typeof vpcConfig === 'string') {
+      logger.error(`Unsupported vpcConfig: ${vpcConfig} which should be 'auto' or 'Auto' when its type is string`);
+      return;
+    }
+    if(typeof vpcConfig === 'undefined' && !isAutoConfig(nasConfig) && typeof nasConfig !== 'undefined') {
+      logger.error(`Unsupported vpcConfig: vpcConfig can't be 'undefined' when nasConfig was not 'auto'`);
+      return;
+    }
+    if(isVpcAuto && !isAutoConfig(nasConfig)) {
+      logger.error(`Unsupported vpcConfig: vpcConfig can't be 'auto' or 'Auto' when nasConfig was not 'auto'`);
+      return;
+    }
+
+    const tunnelService: TunnelService = new TunnelService(
+      creds,
+      serviceConfig,
+      functionConfig,
+      region,
+      access,
+      appName,
+      curPath,
+      triggerConfigList,
+      customDomainConfigList,
+      debugPort,
+      debugIde,
+    );
     await tunnelService.setup();
     const session: Session = tunnelService.getSession();
     const httpTrigger: TriggerConfig = getHttpTrigger(triggerConfigList);
 
     const tmpDir = await ensureTmpDir(argsData['tmp-dir'], devsPath, serviceConfig?.name, functionConfig?.name);
-    const localInvoke: LocalInvoke = new LocalInvoke(tunnelService, session?.sessionId, creds, region, baseDir, serviceConfig, functionConfig, httpTrigger, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
+    const localInvoke: LocalInvoke = new LocalInvoke(
+      tunnelService,
+      session?.sessionId,
+      creds,
+      region,
+      baseDir,
+      serviceConfig,
+      functionConfig,
+      httpTrigger,
+      debugPort,
+      debugIde,
+      tmpDir,
+      debuggerPath,
+      debugArgs,
+      nasBaseDir,
+    );
     await localInvoke.setup();
   }
 
@@ -160,17 +202,7 @@ export default class FcTunnelInvokeComponent {
    * @returns
    */
   public async invoke(inputs: InputProps) {
-    const {
-      serviceConfig,
-      functionConfig,
-      region,
-      creds,
-      isHelp,
-      access,
-      appName,
-      curPath,
-      args
-    } = await this.handlerInputs(inputs);
+    const { serviceConfig, functionConfig, region, creds, isHelp, access, appName, curPath, args } = await this.handlerInputs(inputs);
     if (isHelp) {
       // TODO: help info
       return;
@@ -187,17 +219,7 @@ export default class FcTunnelInvokeComponent {
    * @returns
    */
   public async cleanup(inputs: InputProps) {
-    const {
-      serviceConfig,
-      functionConfig,
-      region,
-      baseDir,
-      creds,
-      isHelp,
-      access,
-      appName,
-      curPath
-    } = await this.handlerInputs(inputs);
+    const { serviceConfig, functionConfig, region, baseDir, creds, isHelp, access, appName, curPath } = await this.handlerInputs(inputs);
     if (isHelp) {
       // TODO: help info
       return;
@@ -217,8 +239,7 @@ export default class FcTunnelInvokeComponent {
    * @returns
    */
   public async clean(inputs: InputProps) {
-    logger.warning('Method clean has been decrepted. Please use \'s cleanup\' from now on.');
+    logger.warning("Method clean has been decrepted. Please use 's cleanup' from now on.");
     await this.cleanup(inputs);
   }
-
 }
