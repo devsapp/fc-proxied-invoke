@@ -23,7 +23,7 @@ jobs:
           pip install requests
       - name: NPM install
         run: |
-          npm install --production
+          npm install @alicloud/credentials @serverless-devs/core
       - name: Add publish file
         run: |
           wget https://serverless-registry.oss-cn-hangzhou.aliyuncs.com/publish-file/python3/hub-publish.py
