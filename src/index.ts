@@ -182,11 +182,11 @@ export default class FcTunnelInvokeComponent {
   }
 
   /**
-   * clean
+   * cleanup
    * @param inputs
    * @returns
    */
-  public async clean(inputs: InputProps) {
+  public async cleanup(inputs: InputProps) {
     const {
       serviceConfig,
       functionConfig,
@@ -208,6 +208,17 @@ export default class FcTunnelInvokeComponent {
 
     const localInvoke: LocalInvoke = new LocalInvoke(tunnelService, null, creds, region, baseDir, serviceConfig, functionConfig);
     await localInvoke.clean();
+  }
+
+  /**
+   * @Decrepted
+   * clean
+   * @param inputs
+   * @returns
+   */
+  public async clean(inputs: InputProps) {
+    logger.warning('Method clean has been decrepted. Please use \'s cleanup\' from now on.');
+    await this.cleanup(inputs);
   }
 
 }
