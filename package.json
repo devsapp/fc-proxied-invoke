@@ -23,7 +23,7 @@
     "url": "https://github.com/devsapp/fc-tunnel-invoke"
   },
   "scripts": {
-    "start": "npm run watch",
+    "start": "npm run prebuild && ex -sc '15i|//@ts-ignore' -cx node_modules/draftlog/index.d.ts && npm run watch",
     "watch": "npm run doc && tsc -w",
     "publish": "npm run build && s cli platform publish",
     "prebuild": "rm -rf node_modules && rm -rf package-lock.json && npm i && rimraf lib",

@@ -2,7 +2,7 @@ import logger from '../common/logger';
 import * as core from '@serverless-devs/core';
 import { Session } from './interface/session';
 import {ICredentials, InputProps} from "../common/entity";
-import {AlicloudClient} from "./client";
+import {AlicloudClient} from "./client/client";
 import {ServiceConfig} from "./interface/fc-service";
 import {FunctionConfig} from "./interface/fc-function";
 import _ from 'lodash';
@@ -61,8 +61,8 @@ export default class TunnelService {
     private static readonly tunnerServiceHost: string = 'tunnel-service.cn-hangzhou.aliyuncs.com';
     // private static defaultFunctionImage: string = `registry.${TunnelService.defaultRegion}.aliyuncs.com/aliyunfc/ts-remote:v0.2`;
     private static readonly proxyImageName: string = 'ts-local';
-    private static readonly proxyImageStableVersion: string = 'v0.1.0';
-    private static readonly helperImageStableVersion: string = 'v0.1.0'
+    private static readonly proxyImageStableVersion: string = 'v0.1.1';
+    private static readonly helperImageStableVersion: string = 'v0.1.1'
     private static readonly helperImageVersion: string = process.env['TUNNEL_SERVICE_HELPER_IMAGE_LATEST_VERSION'] || TunnelService.helperImageStableVersion;
     private static readonly proxyImageVersion: string = process.env['TUNNEL_SERVICE_PROXY_IMAGE_LATEST_VERSION'] || TunnelService.proxyImageStableVersion;
     private static readonly proxyImageRepo: string = 'aliyunfc';
@@ -128,9 +128,6 @@ export default class TunnelService {
     }
 
     public async setup(): Promise<any> {
-        if (this.userFunctionConfig?.caPort && this.userFunctionConfig?.caPort !== 9000) {
-            throw new Error(`Proxied invoke only support caPort: 9000 for custom-container/custom runtime.Please change it temporarily and retry.`);
-        }
         // create client
         const alicloudClient: AlicloudClient = new AlicloudClient(this.credentials);
         this.fcClient = await alicloudClient.getFcClient(this.region);
@@ -527,8 +524,13 @@ export default class TunnelService {
             TUNNEL_SERVICE_SESSION_ID: this.session?.sessionId,
             TUNNEL_SERVICE_INSTANCE_ID: this.session?.localInstanceId,
             TUNNEL_SERVICE_AK_ID: this.credentials?.AccessKeyID,
-            TUNNEL_SERVICE_AK_SECRET: this.credentials?.AccessKeySecret
+            TUNNEL_SERVICE_AK_SECRET: this.credentials?.AccessKeySecret,
         };
+        if (isCustomContainerRuntime(this.userFunctionConfig?.runtime)) {
+            Object.assign(envs, {
+                FC_CA_PORT: this.userFunctionConfig?.caPort || 9000
+            });
+        }
         return _.map(envs || {}, (v, k) => `${k}=${v}`);
     }
 

@@ -227,21 +227,21 @@ export function generateFunctionEnvs(functionConfig: FunctionConfig): any {
 
 
 
-export async function pullFcImageIfNeed(imageName): Promise<void> {
+export async function pullFcImageIfNeed(imageName, needResolveImageName = true): Promise<void> {
     const exist: boolean = await imageExist(imageName);
 
     if (!exist || !skipPullImage) {
 
-        await pullImage(imageName);
+        await pullImage(imageName, needResolveImageName);
     } else {
         logger.debug(`skip pulling image ${imageName}...`);
         logger.info(`Skip pulling image ${imageName}...`);
     }
 }
 
-export async function pullImage(imageName: string): Promise<any> {
+export async function pullImage(imageName: string, needResolveImageName?: boolean): Promise<any> {
 
-    const resolveImageName: string = await dockerOpts.resolveImageNameForPull(imageName);
+    const resolveImageName: string = needResolveImageName ? await dockerOpts.resolveImageNameForPull(imageName) : imageName;
 
 
     const stream: any = await docker.pull(resolveImageName);
