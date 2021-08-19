@@ -10,7 +10,7 @@ export interface ServiceConfig {
     logConfig?: LogConfig | 'auto' | 'Auto';
     role?: string | RoleConfig;
     vpcConfig?: VpcConfig | 'auto' | 'Auto';
-    nasConfig?: NasConfig | 'atuo' | 'Auto';
+    nasConfig?: NasConfig | 'auto' | 'Auto';
 }
 
 
