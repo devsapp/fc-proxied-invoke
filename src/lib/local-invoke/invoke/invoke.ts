@@ -138,7 +138,7 @@ export default class Invoke {
       this.imageName = await dockerOpts.resolveRuntimeToDockerImage(this.runtime);
     }
 
-    await docker.pullFcImageIfNeed(this.imageName);
+    await docker.pullFcImageIfNeed(this.imageName, !isCustomContainer);
 
     this.inited = true;
   }
