@@ -49,7 +49,7 @@ End of method: invoke
 清理辅助资源、session 以及本地调试容器。
 
 ```bash
-$ s clean
+$ s cleanup
 ```
 
 ## Debugging with vscode
@@ -108,5 +108,5 @@ $ s tunnel-invoke-test invoke
 清理辅助资源、session 以及本地调试容器。
 
 ```bash
-$ s clean
+$ s cleanup
 ```
