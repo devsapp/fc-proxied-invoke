@@ -1,18 +1,19 @@
 import Pop from '@alicloud/pop-core';
-import { throwProcessedPopPermissionError, throwProcessedFCPermissionError } from './error';
+import { throwProcessedPopPermissionError, throwProcessedFCPermissionError } from '../error';
 import * as _ from 'lodash';
-import {ICredentials} from "../common/entity";
+import {ICredentials} from "../../common/entity";
 import osLocale from 'os-locale';
-import {isNccPath} from "./utils/path";
+import {isNccPath} from "../utils/path";
 const FC = require('@alicloud/fc2');
 const hashedMachineId = require('node-machine-id').machineId;
 import p from "path";
 
 let pkg;
+
 if (isNccPath(__dirname)) {
   pkg = require(p.join(p.resolve(__dirname, '../'), 'package.json'));
 } else {
-  pkg = require(p.join(p.resolve(__dirname, '../..'), 'package.json'));
+  pkg = require(p.join(p.resolve(__dirname, '../../..'), 'package.json'));
 }
 
 const defaultTimeout = 300;
