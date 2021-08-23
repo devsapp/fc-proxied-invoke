@@ -23,5 +23,5 @@ export async function ensureTmpDir(tmpDir: string, devsPath: string, serviceName
 }
 
 export function isNccPath(targetPath: string): boolean {
-  return path.basename(targetPath) === 'lib';
+  return path.basename(targetPath) === 'dist';
 }
