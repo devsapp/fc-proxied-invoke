@@ -14,7 +14,7 @@
   "author": "Serverless-Devs",
   "contributors": [],
   "license": "MIT",
-  "main": "./lib/index.js",
+  "main": "./dist/index.js",
   "publishConfig": {
     "access": "public"
   },
@@ -26,9 +26,9 @@
     "start": "npm run prebuild && ex -sc '15i|//@ts-ignore' -cx node_modules/draftlog/index.d.ts && npm run watch",
     "watch": "npm run doc && tsc -w",
     "publish": "npm run build && s cli platform publish",
-    "prebuild": "rm -rf node_modules && rm -rf package-lock.json && npm i && rimraf lib",
-    "build": "ncc build src/index.ts -m -e @serverless-devs/core -e @alicloud/credentials -o lib",
-    "obfuscate": "rm -rf ./dist && rm -rf node_modules && rm -rf package-lock.json && npm i && ex -sc '15i|//@ts-ignore' -cx node_modules/draftlog/index.d.ts && npm run build && javascript-obfuscator ./lib --output ./dist",
+    "prebuild": "rm -rf node_modules && rm -rf package-lock.json && npm i && rimraf dist",
+    "build": "ncc build src/index.ts -m -e @serverless-devs/core -e @alicloud/credentials -o dist",
+    "postbuild": "rm -rf node_modules && rm -rf package-lock.json && npm install @alicloud/credentials",
     "doc": "npx typedoc src --json doc/doc.json --out doc"
   },
   "dependencies": {
