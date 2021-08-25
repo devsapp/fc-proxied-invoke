@@ -15,7 +15,7 @@ export const DOCKER_REGISTRIES: string[] = [
   "registry.cn-beijing.aliyuncs.com",
   "registry.hub.docker.com"
 ];
-const IMAGE_VERSION: string = process.env.FC_DOCKER_VERSION || '1.9.19';
+const IMAGE_VERSION: string = process.env.FC_DOCKER_VERSION || '1.9.20';
 
 
 let DOCKER_REGISTRY_CACHE;
@@ -138,19 +138,24 @@ export function generateContainerName(serviceName: string, functionName: string,
     + (debugPort ? '-debug' : '-run');
 }
 
-export async function generateLocalStartOpts(proxyContainerName: string, runtime, name, mounts, cmd, envs, { debugPort, dockerUser, debugIde = null, imageName }) {
+export async function generateLocalStartOpts(proxyContainerName: string, runtime, name, mounts, cmd, envs, resourcesLimit, { debugPort, dockerUser, debugIde = null, imageName }) {
   if (isCustomContainerRuntime(runtime)) {
-    return genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd, envs, imageName);
+    return genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd, envs, imageName,resourcesLimit);
   }
-  return await genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde);
+  return await genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde, resourcesLimit);
 }
 
-async function genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde) {
+async function genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde, resourcesLimit) {
   const hostOpts: any = {
     HostConfig: {
       AutoRemove: true,
       Mounts: mounts,
-      Privileged: true
+      Privileged: true,
+      Memory: resourcesLimit.memorySize,
+      CpusetCpus: resourcesLimit.cpuCores,
+      Ulimits: resourcesLimit.ulimits,
+      CpuPeriod: resourcesLimit.cpuPeriod,
+      CpuQuota: resourcesLimit.cpuQuota
     }
   };
   if (!_.isEmpty(proxyContainerName)) {
@@ -210,12 +215,17 @@ function encryptDockerOpts(dockerOpts: any): any {
   return encryptedOpts;
 }
 
-function genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd, envs, imageName) {
+function genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd, envs, imageName, resourcesLimit) {
   const hostOpts: any = {
     HostConfig: {
       AutoRemove: true,
       Mounts: mounts,
-      Privileged: true
+      Privileged: true,
+      Memory: resourcesLimit.memorySize,
+      CpusetCpus: resourcesLimit.cpuCores,
+      Ulimits: resourcesLimit.ulimits,
+      CpuPeriod: resourcesLimit.cpuPeriod,
+      CpuQuota: resourcesLimit.cpuQuota
     }
   };
   if (!_.isEmpty(proxyContainerName)) {
