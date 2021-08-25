@@ -73,7 +73,7 @@ export default class HttpInvoke extends Invoke {
     setSigint();
     // exit container, when use ctrl + c
     process.on('SIGINT', async () => {
-      await this.cancelExecAndCleanAll()
+      await this.cancelExecAndCleanAll();
     });
   }
 
@@ -140,11 +140,21 @@ export default class HttpInvoke extends Invoke {
     const cmd = docker.generateDockerCmd(this.runtime, true, this.functionConfig);
     const proxyContainerName: string = genProxyContainerName(this.sessionId);
     this.containerName = docker.generateRamdomContainerName();
-    const opts = await dockerOpts.generateLocalStartOpts(proxyContainerName, this.runtime, this.containerName, this.mounts, cmd, envs, {
-      debugPort: this.debugPort,
-      dockerUser: this.dockerUser,
-      imageName: this.imageName,
-    });
+    const containerResourceLimit = docker.generateResourcesLimitOptions(this.functionConfig);    
+    const opts = await dockerOpts.generateLocalStartOpts(
+      proxyContainerName,
+      this.runtime,
+      this.containerName,
+      this.mounts,
+      cmd,
+      envs,
+      containerResourceLimit,
+      {
+        debugPort: this.debugPort,
+        dockerUser: this.dockerUser,
+        imageName: this.imageName,
+      },
+    );
     this.runner = await docker.startContainer(opts, process.stdout, process.stderr, {
       serviceName: this.serviceName,
       functionName: this.functionName,
@@ -226,7 +236,7 @@ For more information about s.yaml configuration, please refer to: https://github
 
           const isContinue = this.assumeYes || await isContinueWhenNasMountError();
           if (!isContinue) {
-            await this.cancelExecAndCleanAll()
+            await this.cancelExecAndCleanAll();
           } else {
             logger.info('The container was started successfully in local mount nas mode!');
           }
