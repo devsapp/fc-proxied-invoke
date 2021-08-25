@@ -15,7 +15,7 @@ export const DOCKER_REGISTRIES: string[] = [
   "registry.cn-beijing.aliyuncs.com",
   "registry.hub.docker.com"
 ];
-const IMAGE_VERSION: string = process.env.FC_DOCKER_VERSION || '1.9.19';
+const IMAGE_VERSION: string = process.env.FC_DOCKER_VERSION || '1.9.20';
 
 
 let DOCKER_REGISTRY_CACHE;
