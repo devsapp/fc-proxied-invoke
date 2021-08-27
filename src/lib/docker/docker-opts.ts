@@ -155,7 +155,7 @@ async function genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, 
       CpusetCpus: resourcesLimit.cpuCores,
       Ulimits: resourcesLimit.ulimits,
       CpuPeriod: resourcesLimit.cpuPeriod,
-      CpuQuato: resourcesLimit.cpuQuato
+      CpuQuota: resourcesLimit.cpuQuota
     }
   };
   if (!_.isEmpty(proxyContainerName)) {
@@ -225,7 +225,7 @@ function genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd,
       CpusetCpus: resourcesLimit.cpuCores,
       Ulimits: resourcesLimit.ulimits,
       CpuPeriod: resourcesLimit.cpuPeriod,
-      CpuQuato: resourcesLimit.cpuQuato
+      CpuQuota: resourcesLimit.cpuQuota
     }
   };
   if (!_.isEmpty(proxyContainerName)) {

@@ -56,7 +56,7 @@ export function generateResourcesLimitOptions(functionConfig: FunctionConfig): a
     { Name: 'nproc', Soft: 1024, Hard: 1024 },
   ];
   const cpuPeriod: number = 50000;
-  const cpuQuato: number = cpuPeriod * memoryCoreRatio * memorySize;
+  const cpuQuota: number = cpuPeriod * memoryCoreRatio * memorySize;
 
   logger.debug(`cpuCores: ${cpuCores}`);
   return {
@@ -64,7 +64,7 @@ export function generateResourcesLimitOptions(functionConfig: FunctionConfig): a
     cpuCores: availableCores.slice(0, cpuCores).join(','),
     ulimits,
     cpuPeriod,
-    cpuQuato
+    cpuQuota
   };
 }
 
