@@ -183,7 +183,6 @@ export default class TunnelService {
     }
 
     private async makeCleanerFunction() {
-        console.info(this.credentials)
         if (!this.fcClient) {
           const alicloudClient: AlicloudClient = new AlicloudClient(this.credentials);
           this.fcClient = await alicloudClient.getFcClient(this.region);
@@ -228,7 +227,7 @@ export default class TunnelService {
     private genHelperServiceConfig(): ServiceConfig {
         const helperServiceConfig: ServiceConfig = _.cloneDeep(this.userServiceConfig);
         helperServiceConfig.name = `SESSION-${this.session?.sessionId.substring(0, 7)}`;
-        // 添加 description 
+        // 添加 description
         helperServiceConfig.description = `Auto generated proxied session: ${this.session?.sessionId}`;
         // 开启公网访问
         helperServiceConfig.internetAccess = true;
