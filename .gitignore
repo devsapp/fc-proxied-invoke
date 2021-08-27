@@ -10,3 +10,6 @@ package-lock.json
 
 .tmp
 example/java8-event/target
+
+doc/
+dist/

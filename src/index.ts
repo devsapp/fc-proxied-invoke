@@ -135,6 +135,7 @@ export default class FcTunnelInvokeComponent {
     });
     const argsData: any = parsedArgs?.data || {};
     const { debugPort, debugIde, debuggerPath, debugArgs } = getDebugOptions(argsData);
+    const memorySize: number = argsData['memory-size'];
     if (debugIde && !FcTunnelInvokeComponent.supportedDebugIde.includes(_.toLower(debugIde))) {
       logger.error(`Unsupported ide: ${debugIde} for debugging.Only ${FcTunnelInvokeComponent.supportedDebugIde} are supported`);
       return;
@@ -171,6 +172,7 @@ export default class FcTunnelInvokeComponent {
       customDomainConfigList,
       debugPort,
       debugIde,
+      memorySize
     );
     await tunnelService.setup();
     const session: Session = tunnelService.getSession();
