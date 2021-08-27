@@ -1,0 +1,15 @@
+{
+  "name": "cleaner",
+  "version": "1.0.0",
+  "description": "The helper function to clean the session service.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@alicloud/tunnel-service20210509": "^0.1.1",
+    "promise-retry": "^2.0.1"
+  },
+  "author": "",
+  "license": "MIT"
+}
