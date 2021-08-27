@@ -137,7 +137,7 @@ export default class HttpInvoke extends Invoke {
     const cmd = docker.generateDockerCmd(this.runtime, true, this.functionConfig);
     const proxyContainerName: string = genProxyContainerName(this.sessionId);
     this.containerName = docker.generateRamdomContainerName();
-    const containerResourceLimit = docker.generateResourcesLimitOptions(this.functionConfig);
+    const containerResourceLimit = docker.generateResourcesLimitOptions(this.functionConfig);    
     const opts = await dockerOpts.generateLocalStartOpts(
       proxyContainerName,
       this.runtime,

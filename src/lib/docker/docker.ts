@@ -5,7 +5,6 @@ import * as draftlog from 'draftlog';
 import { findPathsOutofSharedPaths } from './docker-support';
 import { processorTransformFactory } from '../error-processor';
 import _ from 'lodash';
-import os from 'os';
 import { NasConfig } from '../interface/nas';
 import * as nas from '../local-invoke/nas';
 import path from 'path';
@@ -24,6 +23,8 @@ import { isAutoConfig, resolveAutoLogConfig } from '../definition';
 import { LogConfig } from '../interface/sls';
 import devnull from 'dev-null';
 import * as core from '@serverless-devs/core';
+import { execSync } from 'child_process';
+import { bytesToSize } from '../utils/utils';
 
 const isWin: boolean = process.platform === 'win32';
 const CPUSET: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
@@ -46,26 +47,49 @@ export async function imageExist(imageUrl: string): Promise<boolean> {
 }
 
 export function generateResourcesLimitOptions(functionConfig: FunctionConfig): any {
-  const availableCores: Array<number> = CPUSET.slice(0, os.cpus.length);
-  const memorySize: number = functionConfig?.memorySize;
+  const { NCPU, MemTotal } = getDockerCpuAndMemoryLimit();
+  let memorySize: number = functionConfig?.memorySize * 1024 * 1024; //bytes
+  if (memorySize > MemTotal) {
+    memorySize = MemTotal;
+    logger.warning(`The memory config exceeds the docker limit. The memory actually allocated: ${bytesToSize(memorySize)}`);
+  }
   const instanceType: string = functionConfig?.instanceType || 'e1';
   const memoryCoreRatio: number = instanceType === 'c1' ? 1 / 2048 : 2 / 3072;
-  const cpuCores: number = Math.ceil(memoryCoreRatio * memorySize);
+  let cpuCores: any = Math.ceil(memoryCoreRatio * (memorySize / 1024 / 1024));
+  if (cpuCores > NCPU) {
+    cpuCores = CPUSET.slice(0, NCPU).join(',');
+  } else {
+    cpuCores = CPUSET.slice(0, cpuCores).join(',');
+  }
   const ulimits: any = [
     { Name: 'nofile', Soft: 1024, Hard: 1024 },
     { Name: 'nproc', Soft: 1024, Hard: 1024 },
   ];
   const cpuPeriod: number = 50000;
-  const cpuQuota: number = cpuPeriod * memoryCoreRatio * memorySize;
+  const cpuQuota: number = Math.ceil(cpuPeriod * memoryCoreRatio * (memorySize / 1024 / 1024));
 
-  logger.debug(`cpuCores: ${cpuCores}`);
-  return {
-    memorySize: memorySize * 1024 * 1024, // bytes
-    cpuCores: availableCores.slice(0, cpuCores).join(','),
+  logger.debug(JSON.stringify({
+    memorySize: memorySize,
+    cpuCores: cpuCores,
     ulimits,
     cpuPeriod,
-    cpuQuota
+    cpuQuota,
+  }))
+
+  return {
+    memorySize: memorySize,
+    cpuCores: cpuCores,
+    ulimits,
+    cpuPeriod,
+    cpuQuota,
   };
+}
+
+function getDockerCpuAndMemoryLimit(): any {
+  const execRes = execSync(`docker info --format '{{json .}}'`);
+  const dockerInfo = JSON.parse(execRes.toString());
+  const { NCPU, MemTotal } = dockerInfo;
+  return { NCPU, MemTotal };
 }
 
 export function generateRamdomContainerName(): string {
