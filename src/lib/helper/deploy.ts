@@ -21,27 +21,33 @@ export async function deployCleaner(client: any, credentials: ICredentials) {
           AK_SECRET_TOKEN: credentials?.SecurityToken,
         },
       });
-      logger.info(`checking cleaner service exist...`);
+      logger.info(`Creating cleaner service...`);
       try {
         await client.createService(serviceConfig.name);
       } catch (e) {
         if (e.name === 'FCServiceAlreadyExistsError') {
-          return;
-        } 
+          logger.debug(`Cleaner service already exist online.`);
+        }
+      }
+      try {
+        await client.createFunction(serviceConfig.name, {
+          functionName: functionConfig.name,
+          description: functionConfig.description,
+          handler: functionConfig.handler,
+          memorySize: functionConfig.memorySize,
+          runtime: functionConfig.runtime,
+          timeout: functionConfig.timeout,
+          environmentVariables: functionConfig.environmentVariables,
+          code: {
+            zipFile: fs.readFileSync(CLEANERCONFIG.zipFile, 'base64'),
+          },
+        });
+      } catch (e) {
+        if (e.name === 'FCFunctionAlreadyExistsError') {
+          logger.debug(`Cleaner function already exist online.`);
+        }
       }
 
-      await client.createFunction(serviceConfig.name, {
-        functionName: functionConfig.name,
-        description: functionConfig.description,
-        handler: functionConfig.handler,
-        memorySize: functionConfig.memorySize,
-        runtime: functionConfig.runtime,
-        timeout: functionConfig.timeout,
-        environmentVariables: functionConfig.environmentVariables,
-        code: {
-          zipFile: fs.readFileSync(CLEANERCONFIG.zipFile, 'base64'),
-        },
-      });
       await client.createTrigger(serviceConfig.name, functionConfig.name, triggerConfig);
       await client.invokeFunction(serviceConfig.name, functionConfig.name, null);
     } catch (err) {

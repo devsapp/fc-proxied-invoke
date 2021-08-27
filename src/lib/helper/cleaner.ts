@@ -1,4 +1,5 @@
 import path from 'path';
+import {isNccPath} from "../utils/path";
 export const CLEANERCONFIG = {
   serviceConfig: {
     name: '_FC_Session_Service_Cleaner',
@@ -15,11 +16,11 @@ export const CLEANERCONFIG = {
     triggerName: 'timerTrigger',
     triggerType: 'timer',
     triggerConfig: {
-      // 每3个小时定时执行一次
-      cronExpression: '0 0 0,3,6,9,12,15,18,21 * * * ',
+      // 每隔 5 分钟定时执行一次
+      cronExpression: '@every 5m',
       enable: true,
       payload: '',
     },
   },
-  zipFile: path.join(__dirname, 'cleaner.zip'),
+  zipFile: isNccPath(__dirname) ? path.join(__dirname, 'lib', 'helper', 'cleaner.zip') : path.join(__dirname, 'cleaner.zip'),
 };
