@@ -138,19 +138,24 @@ export function generateContainerName(serviceName: string, functionName: string,
     + (debugPort ? '-debug' : '-run');
 }
 
-export async function generateLocalStartOpts(proxyContainerName: string, runtime, name, mounts, cmd, envs, { debugPort, dockerUser, debugIde = null, imageName }) {
+export async function generateLocalStartOpts(proxyContainerName: string, runtime, name, mounts, cmd, envs, resourcesLimit, { debugPort, dockerUser, debugIde = null, imageName }) {
   if (isCustomContainerRuntime(runtime)) {
-    return genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd, envs, imageName);
+    return genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd, envs, imageName,resourcesLimit);
   }
-  return await genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde);
+  return await genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde, resourcesLimit);
 }
 
-async function genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde) {
+async function genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde, resourcesLimit) {
   const hostOpts: any = {
     HostConfig: {
       AutoRemove: true,
       Mounts: mounts,
-      Privileged: true
+      Privileged: true,
+      Memory: resourcesLimit.memorySize,
+      CpusetCpus: resourcesLimit.cpuCores,
+      Ulimits: resourcesLimit.ulimits,
+      CpuPeriod: resourcesLimit.cpuPeriod,
+      CpuQuato: resourcesLimit.cpuQuato
     }
   };
   if (!_.isEmpty(proxyContainerName)) {
@@ -210,12 +215,17 @@ function encryptDockerOpts(dockerOpts: any): any {
   return encryptedOpts;
 }
 
-function genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd, envs, imageName) {
+function genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd, envs, imageName, resourcesLimit) {
   const hostOpts: any = {
     HostConfig: {
       AutoRemove: true,
       Mounts: mounts,
-      Privileged: true
+      Privileged: true,
+      Memory: resourcesLimit.memorySize,
+      CpusetCpus: resourcesLimit.cpuCores,
+      Ulimits: resourcesLimit.ulimits,
+      CpuPeriod: resourcesLimit.cpuPeriod,
+      CpuQuato: resourcesLimit.cpuQuato
     }
   };
   if (!_.isEmpty(proxyContainerName)) {

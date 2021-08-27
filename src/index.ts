@@ -17,8 +17,8 @@ import { getHttpTrigger, isAutoConfig } from './lib/definition';
 import { getDebugOptions } from './lib/local-invoke/debug';
 import { ensureTmpDir } from './lib/utils/path';
 import { Session } from './lib/interface/session';
-import { VpcConfig } from './lib/interface/vpc'
-import { NasConfig } from './lib/interface/nas'
+import { VpcConfig } from './lib/interface/vpc';
+import { NasConfig } from './lib/interface/nas';
 
 export default class FcTunnelInvokeComponent {
   static readonly supportedDebugIde: string[] = ['vscode', 'intellij'];
@@ -39,7 +39,7 @@ export default class FcTunnelInvokeComponent {
     }
   }
 
-  async handlerInputs(inputs: InputProps): Promise<{[key: string]: any}> {
+  async handlerInputs(inputs: InputProps): Promise<{ [key: string]: any }> {
     await StdoutFormatter.initStdout();
     const project = inputs?.project;
     const access: string = project?.access;
@@ -142,20 +142,20 @@ export default class FcTunnelInvokeComponent {
     }
 
     const vpcConfig: VpcConfig | string = serviceConfig.vpcConfig;
-    const nasConfig: NasConfig |string = serviceConfig.nasConfig;
+    const nasConfig: NasConfig | string = serviceConfig.nasConfig;
 
     // Judge the validity of vpc and nas configuration
-    const isVpcAuto: boolean = isAutoConfig(serviceConfig.vpcConfig)
-    
+    const isVpcAuto: boolean = isAutoConfig(serviceConfig.vpcConfig);
+
     if (!isVpcAuto && typeof vpcConfig === 'string') {
       logger.error(`Unsupported vpcConfig: ${vpcConfig} which should be 'auto' or 'Auto' when its type is string`);
       return;
     }
-    if(typeof vpcConfig === 'undefined' && !isAutoConfig(nasConfig) && typeof nasConfig !== 'undefined') {
+    if (typeof vpcConfig === 'undefined' && !isAutoConfig(nasConfig) && typeof nasConfig !== 'undefined') {
       logger.error(`Unsupported vpcConfig: vpcConfig can't be 'undefined' when nasConfig was not 'auto'`);
       return;
     }
-    if(isVpcAuto && !isAutoConfig(nasConfig)) {
+    if (isVpcAuto && !isAutoConfig(nasConfig)) {
       logger.error(`Unsupported vpcConfig: vpcConfig can't be 'auto' or 'Auto' when nasConfig was not 'auto'`);
       return;
     }
