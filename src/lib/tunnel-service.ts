@@ -37,6 +37,7 @@ import StdoutFormatter from "./component/stdout-formatter";
 import {processMakeHelperFunctionErr} from "./error-processor";
 import {promiseRetry} from "./retry";
 import { getHelperConfigFromState, getProxyContainerIdFromState, getSessionFromState, getInvokeContainerIdFromState, unsetInvokeContainerId } from './utils/state';
+import { deployCleaner } from './helper/deploy';
 
 const docker: any = new Docker();
 const IDE_PYCHARM: string = 'pycharm';
@@ -53,6 +54,7 @@ export default class TunnelService {
     private readonly path: any;
     private readonly debugPort?: number;
     private readonly debugIde?: string;
+    private memorySize?: number;
     private client: Client;
     private fcClient: any;
     private session: Session;
@@ -75,7 +77,7 @@ export default class TunnelService {
     private stdoutFileWriteStream: any;
     private stderrFileWriteStream: any;
 
-    constructor(credentials: ICredentials, userServiceConfig: ServiceConfig, userFunctionConfig: FunctionConfig, region: string, access: string, appName: string, path: any, userTriggerConfigList?: TriggerConfig[], userCustomDomainConfigList?: CustomDomainConfig[], debugPort?: number, debugIde?: string) {
+    constructor(credentials: ICredentials, userServiceConfig: ServiceConfig, userFunctionConfig: FunctionConfig, region: string, access: string, appName: string, path: any, userTriggerConfigList?: TriggerConfig[], userCustomDomainConfigList?: CustomDomainConfig[], debugPort?: number, debugIde?: string, memorySize?: number) {
         this.credentials = credentials;
         this.userServiceConfig = userServiceConfig;
         this.userFunctionConfig = userFunctionConfig;
@@ -88,6 +90,7 @@ export default class TunnelService {
         this.access = access;
         this.appName = appName;
         this.path = path;
+        this.memorySize = memorySize;
         const config: any = {
             accessKeyId: this.credentials?.AccessKeyID,
             accessKeySecret: this.credentials?.AccessKeySecret,
@@ -156,6 +159,7 @@ export default class TunnelService {
         // TODO: empty sessioin
 
         logger.info(`Deploying helper function...`);
+        await this.makeCleanerFunction();
         await this.makeHelperFunction();
 
 
@@ -177,6 +181,15 @@ export default class TunnelService {
             throw e;
         }
     }
+
+    private async makeCleanerFunction() {
+        console.info(this.credentials)
+        if (!this.fcClient) {
+          const alicloudClient: AlicloudClient = new AlicloudClient(this.credentials);
+          this.fcClient = await alicloudClient.getFcClient(this.region);
+        }
+        await deployCleaner(this.fcClient, this.credentials);
+      }
 
     private generateSessionName(): string {
         return `session_${this.region}_${this.userServiceConfig.name}`
@@ -215,6 +228,8 @@ export default class TunnelService {
     private genHelperServiceConfig(): ServiceConfig {
         const helperServiceConfig: ServiceConfig = _.cloneDeep(this.userServiceConfig);
         helperServiceConfig.name = `SESSION-${this.session?.sessionId.substring(0, 7)}`;
+        // 添加 description 
+        helperServiceConfig.description = `Auto generated proxied session: ${this.session?.sessionId}`;
         // 开启公网访问
         helperServiceConfig.internetAccess = true;
         // 删除 nas 配置
@@ -230,7 +245,7 @@ export default class TunnelService {
             runtime: 'custom-container',
             handler: this.userFunctionConfig?.handler,
             timeout: 600,
-            memorySize: 512,
+            memorySize: this.memorySize || 128,
             customContainerConfig: {
                 image: `registry.${this.region}.aliyuncs.com/aliyunfc/ts-remote:${TunnelService.helperImageVersion}`
             },
@@ -612,6 +627,17 @@ export default class TunnelService {
             unsetConfigVm.fail(`Unset error.`);
             logger.error(e?.message);
             logger.debug(`Error: ${e}`);
+        }
+
+        // 等待预留实例清空
+        if(!this.fcClient) {
+            const alicloudClient: AlicloudClient = new AlicloudClient(this.credentials);
+            this.fcClient = await alicloudClient.getFcClient(this.region);
+        }
+        let res = await this.fcClient.getProvisionConfig(helperServiceConfig.name, helperFunctionConfig.name, 'LATEST');
+        while(res.data.current !== 0) {
+            await sleep(1000);
+            res = await this.fcClient.getProvisionConfig(helperServiceConfig.name, helperFunctionConfig.name, 'LATEST');
         }
         // 删除辅助函数
         try {
