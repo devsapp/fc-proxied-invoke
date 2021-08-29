@@ -15,8 +15,12 @@ export abstract class Component {
 
   abstract genComponentProp();
 
-  genComponentInputs(componentName?: string, projectName?: string, args?: string, command?: string): InputProps {
-    const props: any = this.genComponentProp();
+  genComponentInputs(componentName?: string, projectName?: string, args?: string, command?: string, customDomains?: any): InputProps {
+    let props: any = this.genComponentProp();
+    if(!_.isEmpty(customDomains)) {
+      props.domainName = customDomains[0].domainName;
+    }
+    logger.debug(`props: ${props}`);
     const inputProps: InputProps = {
       props,
       appName: this.appName,
