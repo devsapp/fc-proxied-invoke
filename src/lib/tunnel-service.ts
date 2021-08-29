@@ -585,7 +585,7 @@ export default class TunnelService {
         //     invokeArgs = invokeArgs + ' ' + args;
         // }
 
-        const inputs: InputProps = fcRemoteInvokeComponent.genComponentInputs('fc-remote-invoke', 'fc-remote-invoke-project', args, 'invoke');
+        const inputs: InputProps = fcRemoteInvokeComponent.genComponentInputs('fc-remote-invoke', 'fc-remote-invoke-project', args, 'invoke', helperConfig.customDomains);
         const fcRemoteInvokeComponentIns: any = await core.loadComponent(`devsapp/fc-remote-invoke`);
         await fcRemoteInvokeComponentIns.invoke(inputs);
     }
