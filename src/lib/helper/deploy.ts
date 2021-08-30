@@ -47,8 +47,13 @@ export async function deployCleaner(client: any, credentials: ICredentials) {
           logger.debug(`Cleaner function already exist online.`);
         }
       }
-
-      await client.createTrigger(serviceConfig.name, functionConfig.name, triggerConfig);
+      try {
+        await client.createTrigger(serviceConfig.name, functionConfig.name, triggerConfig);
+      } catch (e) {
+        if (e.name === 'FCTriggerAlreadyExistsError') {
+          logger.debug(`Cleaner trigger already exist online.`);
+        }
+      }
       await client.invokeFunction(serviceConfig.name, functionConfig.name, null);
     } catch (err) {
       logger.error(err);
