@@ -1,6 +1,6 @@
 {
   "name": "fc-proxied-invoke",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "This is a component demo for Serverless Devs Tool ",
   "autoInstall": false,
   "keywords": [
