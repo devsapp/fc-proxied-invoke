@@ -51,11 +51,14 @@ export function generateResourcesLimitOptions(functionConfig: FunctionConfig): a
   let memorySize: number = functionConfig?.memorySize * 1024 * 1024; //bytes
   if (memorySize > MemTotal) {
     memorySize = MemTotal;
-    logger.warning(`The memory config exceeds the docker limit. The memory actually allocated: ${bytesToSize(memorySize)}`);
+    logger.warning(`The memory config exceeds the docker limit. The memory actually allocated: ${bytesToSize(memorySize)}.
+Now the limit of RAM resource is ${MemTotal} bytes. To improve the limit, please refer: https://docs.docker.com/desktop/${
+      isWin ? 'windows' : 'mac'
+    }/#resources.`);
   }
   const instanceType: string = functionConfig?.instanceType || 'e1';
-  const memoryCoreRatio: number = instanceType === 'c1' ? 1 / 2048 : 2 / 3072;
-  let cpuCores: any = Math.ceil(memoryCoreRatio * (memorySize / 1024 / 1024));
+  const memoryCoreRatio: number = instanceType === 'c1' ? 1 / 2048 : 2 / 3072;  // 内存核心比，弹性实例2C/3G，性能实例1C/2G
+  let cpuCores: any = Math.ceil(memoryCoreRatio * functionConfig.memorySize);
   if (cpuCores > NCPU) {
     cpuCores = CPUSET.slice(0, NCPU).join(',');
   } else {
@@ -66,15 +69,17 @@ export function generateResourcesLimitOptions(functionConfig: FunctionConfig): a
     { Name: 'nproc', Soft: 1024, Hard: 1024 },
   ];
   const cpuPeriod: number = 50000;
-  const cpuQuota: number = Math.ceil(cpuPeriod * memoryCoreRatio * (memorySize / 1024 / 1024));
+  const cpuQuota: number = Math.ceil(cpuPeriod * memoryCoreRatio * functionConfig.memorySize);  // 按照内存分配cpu配额时
 
-  logger.debug(JSON.stringify({
-    memorySize: memorySize,
-    cpuCores: cpuCores,
-    ulimits,
-    cpuPeriod,
-    cpuQuota,
-  }))
+  logger.debug(
+    JSON.stringify({
+      memorySize: memorySize,
+      cpuCores: cpuCores,
+      ulimits,
+      cpuPeriod,
+      cpuQuota,
+    }),
+  );
 
   return {
     memorySize: memorySize,
