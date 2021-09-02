@@ -1,3 +1,6 @@
 package:
 	rm -rf ../../../../dist/lib/helper/cleaner.zip
-	zip -r ../../../../dist/lib/helper/cleaner.zip * -x makefile
+	npm run build
+	mv node_modules/ dist/
+	cd dist && zip -r ../../../../../dist/lib/helper/cleaner.zip *
+	rm -rf dist
