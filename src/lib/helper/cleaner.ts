@@ -1,11 +1,12 @@
 import path from 'path';
-import {isNccPath} from "../utils/path";
+import { isNccPath } from '../utils/path';
+export const CLEANER_VERSION = '0.0.1';
 export const CLEANERCONFIG = {
   serviceConfig: {
     name: '_FC_Session_Service_Cleaner',
   },
   functionConfig: {
-    name: 'cleaner',
+    name: `cleaner_${CLEANER_VERSION.replace('.', '_').replace('.', '_')}`,
     description: 'The function for cleaning the closed sessions periodically.',
     runtime: 'nodejs12',
     handler: 'index.handler',
