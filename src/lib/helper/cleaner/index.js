@@ -80,6 +80,12 @@ exports.handler = async function (event, context, callback) {
                 await sleep(1000);
               }
 
+              // remove triggers
+              const triggerRes = await fcClient.listTriggers(service.serviceName, functions[0].functionName);
+              for(let trigger of triggerRes.data.triggers) {
+                await fcClient.deleteTrigger(service.serviceName, functions[0].functionName, trigger.triggerName);
+              }
+
               // remove function and service
               if (res.data.target === 0 && res.data.current === 0) {
                 await fcClient.deleteFunction(service.serviceName, functions[0].functionName);

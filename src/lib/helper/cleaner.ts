@@ -1,5 +1,5 @@
 import path from 'path';
-import {isNccPath} from "../utils/path";
+import { isNccPath } from '../utils/path';
 export const CLEANERCONFIG = {
   serviceConfig: {
     name: '_FC_Session_Service_Cleaner',
@@ -23,4 +23,5 @@ export const CLEANERCONFIG = {
     },
   },
   zipFile: isNccPath(__dirname) ? path.join(__dirname, 'lib', 'helper', 'cleaner.zip') : path.join(__dirname, 'cleaner.zip'),
+  version: '0.0.1',
 };

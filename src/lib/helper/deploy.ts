@@ -12,6 +12,8 @@ export async function deployCleaner(client: any, credentials: ICredentials) {
       let serviceConfig: ServiceConfig = CLEANERCONFIG.serviceConfig;
       let functionConfig: FunctionConfig = CLEANERCONFIG.functionConfig;
       let triggerConfig: any = CLEANERCONFIG.triggerConfig;
+      const VERSION = CLEANERCONFIG.version.replace('.', '_').replace('.', '_');
+      const functionName = `${functionConfig.name}_${VERSION}`
 
       // add ak to function env
       Object.assign(functionConfig, {
@@ -29,9 +31,29 @@ export async function deployCleaner(client: any, credentials: ICredentials) {
           logger.debug(`Cleaner service already exist online.`);
         }
       }
+      
+      // delete old version cleaner function if exists
+      try {
+        const res = await client.listFunctions(serviceConfig.name);
+        if(res.data.functions.length > 0) {
+          for(let func of res.data.functions) {
+            const remoteFunctionName: string = func.functionName;
+            if(remoteFunctionName !== functionName) {
+              // remove trigger
+              await client.deleteTrigger(serviceConfig.name, remoteFunctionName, triggerConfig.triggerName);
+              // remove function
+              await client.deleteFunction(serviceConfig.name, remoteFunctionName);
+            }
+          }
+        }
+      } catch (e) {
+        logger.debug(e);
+      }
+
+      // setup new version cleaner function
       try {
         await client.createFunction(serviceConfig.name, {
-          functionName: functionConfig.name,
+          functionName: functionName,
           description: functionConfig.description,
           handler: functionConfig.handler,
           memorySize: functionConfig.memorySize,
@@ -48,13 +70,13 @@ export async function deployCleaner(client: any, credentials: ICredentials) {
         }
       }
       try {
-        await client.createTrigger(serviceConfig.name, functionConfig.name, triggerConfig);
+        await client.createTrigger(serviceConfig.name, functionName, triggerConfig);
       } catch (e) {
         if (e.name === 'FCTriggerAlreadyExistsError') {
           logger.debug(`Cleaner trigger already exist online.`);
         }
       }
-      await client.invokeFunction(serviceConfig.name, functionConfig.name, null);
+      await client.invokeFunction(serviceConfig.name, functionName, null);
     } catch (err) {
       logger.error(err);
       retry(err);
