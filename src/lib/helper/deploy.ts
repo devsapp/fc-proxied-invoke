@@ -29,6 +29,26 @@ export async function deployCleaner(client: any, credentials: ICredentials) {
           logger.debug(`Cleaner service already exist online.`);
         }
       }
+      
+      // delete old version cleaner function if exists
+      try {
+        const res = await client.listFunctions(serviceConfig.name);
+        if(res.data.functions.length > 0) {
+          for(let func of res.data.functions) {
+            const remoteFunctionName: string = func.functionName;
+            if(remoteFunctionName !== functionConfig.name) {
+              // remove trigger
+              await client.deleteTrigger(serviceConfig.name, remoteFunctionName, triggerConfig.triggerName);
+              // remove function
+              await client.deleteFunction(serviceConfig.name, remoteFunctionName);
+            }
+          }
+        }
+      } catch (e) {
+        logger.debug(e);
+      }
+
+      // setup new version cleaner function
       try {
         await client.createFunction(serviceConfig.name, {
           functionName: functionConfig.name,

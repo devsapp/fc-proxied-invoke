@@ -4,9 +4,12 @@
   "description": "The helper function to clean the session service.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prebuild": "rm -rf node_modules && rm -rf package-lock.json && npm i && rimraf dist",
+    "build": "ncc build index.js -e @alicloud/credentials -o dist",
+    "postbuild": "rm -rf node_modules && rm -rf package-lock.json && npm install @alicloud/credentials"
   },
   "dependencies": {
+    "@alicloud/credentials": "^2.1.1",
     "@alicloud/tunnel-service20210509": "^0.1.1",
     "promise-retry": "^2.0.1"
   },
