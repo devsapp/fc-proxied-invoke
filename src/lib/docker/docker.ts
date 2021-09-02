@@ -58,7 +58,7 @@ Now the limit of RAM resource is ${MemTotal} bytes. To improve the limit, please
   }
   const instanceType: string = functionConfig?.instanceType || 'e1';
   const memoryCoreRatio: number = instanceType === 'c1' ? 1 / 2048 : 2 / 3072;  // 内存核心比，弹性实例2C/3G，性能实例1C/2G
-  let cpuCores: any = Math.ceil(memoryCoreRatio * functionConfig.memorySize);
+  let cpuCores: any = Math.ceil(memoryCoreRatio * functionConfig.memorySize);   // cpuset，根据测试结果看会被cpu period和cpu quota覆盖
   if (cpuCores > NCPU) {
     cpuCores = CPUSET.slice(0, NCPU).join(',');
   } else {
@@ -69,7 +69,7 @@ Now the limit of RAM resource is ${MemTotal} bytes. To improve the limit, please
     { Name: 'nproc', Soft: 1024, Hard: 1024 },
   ];
   const cpuPeriod: number = 50000;
-  const cpuQuota: number = Math.ceil(cpuPeriod * memoryCoreRatio * functionConfig.memorySize);  // 按照内存分配cpu配额时
+  const cpuQuota: number = Math.max(Math.ceil(cpuPeriod * memoryCoreRatio * functionConfig.memorySize), cpuPeriod);  // 按照内存分配cpu配额时, 最低为100%，即1Core
 
   logger.debug(
     JSON.stringify({
