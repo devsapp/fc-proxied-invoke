@@ -6,7 +6,7 @@ services:
   fc-tunnel-invoke-test: #  服务名称
     component: ${path(../..)}
     props: #  组件的属性值
-      region: cn-hangzhou
+      region: cn-shenzhen
       service:
         name: qianfeng-tunnel-invoke
         description: demo for fc-deploy component
@@ -23,3 +23,15 @@ services:
         instanceType: e1
         environmentVariables:
           testEnv: true
+      triggers:
+        - name: ossTrigger
+          type: oss
+          role: acs:ram::1921433407561257:role/aliyunfcdefaultrole
+          sourceArn: acs:oss:cn-shenzhen:1921433407561257:serverless-devs
+          config:
+            bucketName: serverless-devs
+            events:
+              - oss:ObjectCreated:*
+            filter:
+              key:
+                prefix: trigger/
