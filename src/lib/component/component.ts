@@ -15,7 +15,7 @@ export abstract class Component {
 
   abstract genComponentProp();
 
-  genComponentInputs(componentName?: string, projectName?: string, args?: string, command?: string, customDomains?: any): InputProps {
+  genComponentInputs(componentName?: string, projectName?: string, args?: string, command?: string, credentials?: any, customDomains?: any): InputProps {
     let props: any = this.genComponentProp();
     if(!_.isEmpty(customDomains)) {
       props.domainName = customDomains[0].domainName;
@@ -37,6 +37,9 @@ export abstract class Component {
     }
     if (!_.isNil(command)) {
       Object.assign(inputProps, { command });
+    }
+    if (!_.isNil(credentials)) {
+      Object.assign(inputProps, { credentials });
     }
 
     logger.debug(`inputs of component: ${inputProps?.project?.component} generated: \n${JSON.stringify(inputProps, null, '  ')}`);

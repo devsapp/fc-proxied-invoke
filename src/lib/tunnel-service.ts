@@ -6,6 +6,7 @@ import {AlicloudClient} from "./client/client";
 import {ServiceConfig} from "./interface/fc-service";
 import {FunctionConfig} from "./interface/fc-function";
 import _ from 'lodash';
+import * as YAML from 'js-yaml';
 import {FcDeployComponent} from "./component/fc-deploy";
 import { sleep } from './utils/time';
 import {pullImageIfNeed, runContainer, stopContainer} from "./docker/docker";
@@ -37,7 +38,9 @@ import StdoutFormatter from "./component/stdout-formatter";
 import {processMakeHelperFunctionErr} from "./error-processor";
 import {promiseRetry} from "./retry";
 import { getHelperConfigFromState, getProxyContainerIdFromState, getSessionFromState, getInvokeContainerIdFromState, unsetInvokeContainerId } from './utils/state';
+import { FcApiComponent } from './component/fc-api'
 import { deployCleaner } from './helper/deploy';
+import { isDeleteOssTriggerAndContinue } from './prompt'
 
 const docker: any = new Docker();
 const IDE_PYCHARM: string = 'pycharm';
@@ -76,8 +79,9 @@ export default class TunnelService {
     private streamOfRunner: any;
     private stdoutFileWriteStream: any;
     private stderrFileWriteStream: any;
+    private assumeYes: boolean
 
-    constructor(credentials: ICredentials, userServiceConfig: ServiceConfig, userFunctionConfig: FunctionConfig, region: string, access: string, appName: string, path: any, userTriggerConfigList?: TriggerConfig[], userCustomDomainConfigList?: CustomDomainConfig[], debugPort?: number, debugIde?: string, memorySize?: number) {
+    constructor(credentials: ICredentials, userServiceConfig: ServiceConfig, userFunctionConfig: FunctionConfig, region: string, access: string, appName: string, path: any, userTriggerConfigList?: TriggerConfig[], userCustomDomainConfigList?: CustomDomainConfig[], debugPort?: number, debugIde?: string, memorySize?: number, assumeYes?: boolean) {
         this.credentials = credentials;
         this.userServiceConfig = userServiceConfig;
         this.userFunctionConfig = userFunctionConfig;
@@ -91,6 +95,7 @@ export default class TunnelService {
         this.appName = appName;
         this.path = path;
         this.memorySize = memorySize;
+        this.assumeYes = assumeYes;
         const config: any = {
             accessKeyId: this.credentials?.AccessKeyID,
             accessKeySecret: this.credentials?.AccessKeySecret,
@@ -188,7 +193,7 @@ export default class TunnelService {
           this.fcClient = await alicloudClient.getFcClient(this.region);
         }
         await deployCleaner(this.fcClient, this.credentials);
-      }
+    }
 
     private generateSessionName(): string {
         return `session_${this.region}_${this.userServiceConfig.name}`
@@ -329,23 +334,112 @@ export default class TunnelService {
         const fcDeployComponent: FcDeployComponent = new FcDeployComponent(this.region, helperServiceConfig, this.access, this.appName, this.path, helperFunctionConfig, helperTriggerConfigList, helperCustomDomainConfigList);
         const fcDeployComponentInputs: InputProps = fcDeployComponent.genComponentInputs('fc-deploy', 'fc-deploy-project', '--use-local', 'deploy');
         const fcDeployComponentIns: any = await core.loadComponent(`devsapp/fc-deploy`);
-        try {
-            const deployRes: any = await fcDeployComponentIns.deploy(fcDeployComponentInputs);
-            await this.saveHelperFunctionDeployRes(deployRes);
-            // 设置函数预留为 1，弹性为 0
-            const setHelperVm: any = core.spinner(`Setting helper function with 1 provison and 0 elasticity`);
+        
+        await promiseRetry(async (retry: any, times: number): Promise<any> => {
             try {
-                await this.setHelperFunctionConfig(helperServiceConfig.name, helperFunctionConfig.name);
-                setHelperVm.succeed(`Helper function is set to 1 provison and 0 elasticity.`);
-            } catch (e) {
-                setHelperVm.fail(`Fail to set provison and elasticity for helper function.`);
+                const deployRes: any = await fcDeployComponentIns.deploy(fcDeployComponentInputs);
+                await this.saveHelperFunctionDeployRes(deployRes);
+                // 设置函数预留为 1，弹性为 0
+                const setHelperVm: any = core.spinner(`Setting helper function with 1 provison and 0 elasticity`);
+                try {
+                    await this.setHelperFunctionConfig(helperServiceConfig.name, helperFunctionConfig.name);
+                    setHelperVm.succeed(`Helper function is set to 1 provison and 0 elasticity.`);
+                } catch (e) {
+                    setHelperVm.fail(`Fail to set provison and elasticity for helper function.`);
+                    throw e;
+                }
+            } catch(e) {
+                await fcDeployComponentIns.remove(fcDeployComponentInputs);
+                const errProcessRes = await processMakeHelperFunctionErr(e, times, this.assumeYes);
+                if(errProcessRes === 'deleteOssTrigger') {
+                    try {
+                        await this.deleteOssTrigger();
+                    } catch (e) {
+                        logger.debug(e);
+                        throw new Error(`Attempt to delete oss trigger failed. Please delete it manually: https://fc.console.aliyun.com/fc/overview. You can also use s fc-api component: https://github.com/devsapp/fc-api.`)
+                    }
+                    retry(e)
+                }
+            }
+        }, 1);
+    }
+
+    async deleteOssTrigger(): Promise<void> {
+        const fcApi = await core.loadComponent('devsapp/fc-api');
+        logger.info(`Delete remote OSS trigger...`);
+        const fcApiComponent: FcApiComponent = new FcApiComponent(this.region, this.access, this.appName, this.path, this.userServiceConfig, this.userFunctionConfig);
+        const listServicesInputs: InputProps = fcApiComponent.genComponentInputs('fc-api', 'fc-api-project', '', 'listServices', this.credentials);
+        const servicesList = YAML.load(await fcApi.listServices(listServicesInputs));
+        
+        let functionsList = await Promise.all(
+            servicesList.map(async service => {
+                const listFunctionsInputs: InputProps = fcApiComponent.genComponentInputs('fc-api', 'fc-api-project', `--serviceName ${service.serviceName}`, 'listFunctions', this.credentials);
+                let functions = YAML.load(await fcApi.listFunctions(listFunctionsInputs));
+                functions = functions.map(func => {
+                    return {serviceName: service.serviceName, functionName: func.functionName};
+                })
+                return functions;
+            })
+        )
+        functionsList = _.flatten(functionsList);
+
+        const triggersList = await Promise.all(
+            functionsList.map(async (func: any) => {
+                const listTriggersInputs: InputProps = fcApiComponent.genComponentInputs('fc-api', 'fc-api-project', `--functionName ${func.functionName} --serviceName ${func.serviceName}`, 'listTriggers', this.credentials);
+                let triggers = YAML.load(await fcApi.listTriggers(listTriggersInputs));
+                triggers.forEach(trigger => {
+                    Object.assign(trigger, {serviceName: func.serviceName, functionName: func.functionName});
+                })
+                return triggers;
+            })
+        )
+        const ossTriggers = _.flatten(triggersList).filter((trigger: any)=> trigger.triggerType === 'oss');
+                
+        let needDeleteOssTriggers = ossTriggers.filter(ossTrigger=>{
+            return _.find(this.userTriggerConfigList, userTrigger => { 
+                return userTrigger.type === 'oss' && 
+                    userTrigger.sourceArn === ossTrigger.sourceArn && 
+                    userTrigger.config.filter.key.prefix === ossTrigger.triggerConfig.filter.key.prefix;
+            });
+        })
+        if(_.isEmpty(needDeleteOssTriggers)){
+            throw new Error(`Remove oss triggers fail: Unable to locate conflicting trigger. Please remove oss triggers manually: https://fc.console.aliyun.com/fc/overview.`);
+        }
+        
+        needDeleteOssTriggers = needDeleteOssTriggers.map(function(trigger) {
+            trigger.region = trigger.sourceArn.split(':')[2];
+            return trigger;
+        })
+
+        logger.info(`The following triggers will be deleted:\n${YAML.dump(
+            needDeleteOssTriggers.map(trigger => {
+                return {
+                    region: trigger.region,
+                    serviceName: trigger.serviceName,
+                    functionName: trigger.functionName,
+                    triggerName: trigger.triggerName,
+                }
+            })
+        )}`);
+
+        if(this.assumeYes || await isDeleteOssTriggerAndContinue()){
+            const deleteOssTriggerTasks = needDeleteOssTriggers.map(async (trigger: any)=>{
+                const deleteTriggerInputs: InputProps = fcApiComponent.genComponentInputs('fc-api', 'fc-api-project',
+                `--region ${trigger.region} --serviceName ${trigger.serviceName} --functionName ${trigger.functionName} --triggerName ${trigger.triggerName}`,
+                'deleteTrigger', this.credentials);
+                return fcApi.deleteTrigger(deleteTriggerInputs);
+            })
+
+            try {
+                const deleteRes = await Promise.all(deleteOssTriggerTasks);
+                logger.debug(deleteRes);
+                logger.info('Trigger ossTrigger delete success');
+            }catch(e){ 
                 throw e;
             }
-        } catch(e) {
-            await fcDeployComponentIns.remove(fcDeployComponentInputs);
-            processMakeHelperFunctionErr(e);
+        }else{
+            throw new Error('The operation has been cancelled by the user.');        
         }
-
     }
 
     async saveHelperFunctionDeployRes(deployRes: any): Promise<any> {
@@ -585,7 +679,7 @@ export default class TunnelService {
         //     invokeArgs = invokeArgs + ' ' + args;
         // }
 
-        const inputs: InputProps = fcRemoteInvokeComponent.genComponentInputs('fc-remote-invoke', 'fc-remote-invoke-project', args, 'invoke', helperConfig.customDomains);
+        const inputs: InputProps = fcRemoteInvokeComponent.genComponentInputs('fc-remote-invoke', 'fc-remote-invoke-project', args, 'invoke', this.credentials, helperConfig.customDomains);
         const fcRemoteInvokeComponentIns: any = await core.loadComponent(`devsapp/fc-remote-invoke`);
         await fcRemoteInvokeComponentIns.invoke(inputs);
     }
