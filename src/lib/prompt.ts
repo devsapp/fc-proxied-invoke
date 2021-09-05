@@ -1,17 +1,25 @@
 import inquirer from 'inquirer';
 
 export async function isContinueWhenNasMountError() {
+  return await getYesOrNo('Do you want to mount nas in local mode and continue?');
+}
+
+export async function isDeleteOssTriggerAndContinue() {
+  return await getYesOrNo('Do you want to remove the remote oss trigger and continue?');
+}
+
+export async function getYesOrNo(message: string): Promise<boolean> {
   const promptList = [
     {
       type: 'list',
-      message: 'Do you want to mount nas in local mode and continue?',
+      message,
       name: 'isContinue',
       choices: ['Yes', 'No'],
-      filter: function (val) {
+      filter: function (val: any) {
         return val === 'Yes';
       },
     },
   ];
-  const isContinue: Boolean = (await inquirer.prompt(promptList)).isContinue;
+  const isContinue: boolean = (await inquirer.prompt(promptList)).isContinue;
   return isContinue;
 }

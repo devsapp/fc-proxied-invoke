@@ -5,7 +5,8 @@ const cheerio = require('cheerio');
 const detectMocha = require('detect-mocha');
 
 import logger from '../common/logger';
-import  { Transform } from 'stream';
+import { Transform } from 'stream';
+import { isDeleteOssTriggerAndContinue } from './prompt';
 const { unrefTimeout } = require('./utils/unref-timeout');
 
 const _ = require('lodash');
@@ -22,13 +23,15 @@ export class FilterChain {
       new FcServiceNotEnabledProcessor(options),
       new RamInactiveErrorProcessor(options),
       new LogInactiveErrorProcessor(options),
-      new ClientTimeoutErrorProcessor(options)
+      new ClientTimeoutErrorProcessor(options),
     ];
   }
 
   async process(message: any, err?: any) {
     for (const processor of this.processors) {
-      if (!message) { message = ''; }
+      if (!message) {
+        message = '';
+      }
 
       if (processor.match(message, err)) {
         await processor.process(message, err);
@@ -47,8 +50,8 @@ class ErrorProcessor {
     this.functionName = options?.functionName;
   }
 
-  match(message, err) { }
-  async process(message, err) { }
+  match(message, err) {}
+  async process(message, err) {}
 
   _autoExist() {
     process.nextTick(() => {
@@ -80,8 +83,7 @@ class ClientTimeoutErrorProcessor extends ErrorProcessor {
 
 class DockerNotStartedOrInstalledErrorProcessor extends ErrorProcessor {
   match(message, err) {
-    if (_.includes(message, 'connect ECONNREFUSED /var/run/docker.sock')
-      || _.includes(message, 'Error: connect ENOENT //./pipe/docker_engine')) {
+    if (_.includes(message, 'connect ECONNREFUSED /var/run/docker.sock') || _.includes(message, 'Error: connect ENOENT //./pipe/docker_engine')) {
       return true;
     }
 
@@ -89,7 +91,7 @@ class DockerNotStartedOrInstalledErrorProcessor extends ErrorProcessor {
   }
 
   async process(message) {
-    logger.log('Fc detected that Docker is not installed on your host or not started. Please run \'docker ps\' command to check docker status.');
+    logger.log("Fc detected that Docker is not installed on your host or not started. Please run 'docker ps' command to check docker status.");
   }
 }
 
@@ -103,21 +105,23 @@ class FcServiceNotEnabledProcessor extends ErrorProcessor {
   }
 
   async process(message) {
-    logger.log('FC service is not enabled for current user. Please enable FC service before using fc.\nYou can enable FC service on this page https://www.aliyun.com/product/fc .');
+    logger.log(
+      'FC service is not enabled for current user. Please enable FC service before using fc.\nYou can enable FC service on this page https://www.aliyun.com/product/fc .',
+    );
   }
 }
 
 class RamInactiveErrorProcessor extends ErrorProcessor {
   match(message, err) {
-    return (_.includes(message, 'Account is inactive to this service') && _.includes(message, 'ram.aliyuncs.com'));
+    return _.includes(message, 'Account is inactive to this service') && _.includes(message, 'ram.aliyuncs.com');
   }
 
   async process(message) {
-    logger.log('Ram service is not enabled for current user. Please enable Ram service before using fc.\nYou can enable Ram service on this page https://www.aliyun.com/product/ram .');
+    logger.log(
+      'Ram service is not enabled for current user. Please enable Ram service before using fc.\nYou can enable Ram service on this page https://www.aliyun.com/product/ram .',
+    );
   }
 }
-
-
 
 class LogInactiveErrorProcessor extends ErrorProcessor {
   match(message, err) {
@@ -173,8 +177,7 @@ class DynamicLinkLibraryMissingProcessor extends ErrorProcessor {
   }
 
   match(message) {
-    return _.includes(message, this.prefix)
-      && _.includes(message, this.suffix);
+    return _.includes(message, this.prefix) && _.includes(message, this.suffix);
   }
 
   async _findPackageByDlName(lib) {
@@ -184,12 +187,14 @@ class DynamicLinkLibraryMissingProcessor extends ErrorProcessor {
 
     const $ = cheerio.load(body);
 
-    const packagesTable = $('#pcontentsres table tbody tr').map((i, element) => ({
-      path: $(element).find('td:nth-of-type(1)').text().trim(),
-      name: $(element).find('td:nth-of-type(2)').text().trim()
-    })).get();
+    const packagesTable = $('#pcontentsres table tbody tr')
+      .map((i, element) => ({
+        path: $(element).find('td:nth-of-type(1)').text().trim(),
+        name: $(element).find('td:nth-of-type(2)').text().trim(),
+      }))
+      .get();
 
-    const packageInfo = _.find(packagesTable, info => _.some(this.libPrefixWhiteList, (prefix) => info.path.startsWith(prefix)));
+    const packageInfo = _.find(packagesTable, (info) => _.some(this.libPrefixWhiteList, (prefix) => info.path.startsWith(prefix)));
 
     if (packageInfo) {
       return packageInfo.name;
@@ -308,26 +313,42 @@ class FcErrorTransform extends Transform {
   }
 }
 
-export function processorTransformFactory({
-  serviceName,
-  functionName,
-  errorStream
-}) {
+export function processorTransformFactory({ serviceName, functionName, errorStream }) {
   const transform = new ChunkSplitTransform({
-    separator: '\n'
+    separator: '\n',
   });
 
-  transform.pipe(new FcErrorTransform({
-    serviceName: serviceName,
-    functionName: functionName
-  })).pipe(errorStream);
+  transform
+    .pipe(
+      new FcErrorTransform({
+        serviceName: serviceName,
+        functionName: functionName,
+      }),
+    )
+    .pipe(errorStream);
 
   return transform;
 }
 
-export function processMakeHelperFunctionErr(e: any): void {
-  if (e?.code === 'OSSInvalidRequest' && e?.message.includes(`event source 'oss' returned error: Cannot specify overlapping prefix and suffix with same event type`)) {
-    throw new Error(`Oss trigger can not be deployed under helper function because it already exists online.Please remove it and exec 's cleanup' to remove the deployed helper resource. Then try 's setup' again.`);
+export async function processMakeHelperFunctionErr(e: any, retryTimes: number, assumeYes?: boolean): Promise<string> {
+  if (
+    e?.code === 'OSSInvalidRequest' &&
+    e?.message.includes(`event source 'oss' returned error: Cannot specify overlapping prefix and suffix with same event type`)
+  ) {
+    if (retryTimes === 1) {
+      const isContinue = assumeYes || await isDeleteOssTriggerAndContinue();
+      if (isContinue) {
+        return 'deleteOssTrigger';
+      } else {
+        throw new Error(
+          `Oss trigger can not be deployed under helper function because it already exists online. Please delete it manually: https://fc.console.aliyun.com/fc/overview. You can also use s fc-api component: https://github.com/devsapp/fc-api. Then exec 's cleanup' to remove the deployed helper resource. Then try 's setup' again.`,
+        );
+      }
+    } else {
+      throw new Error(
+        `Attempt to delete oss trigger failed. Please delete it manually: https://fc.console.aliyun.com/fc/overview. You can also use s fc-api component: https://github.com/devsapp/fc-api.`,
+      );
+    }
   }
   throw e;
 }
