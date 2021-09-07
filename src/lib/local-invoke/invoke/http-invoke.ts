@@ -34,6 +34,7 @@ const dockerClient: any = new Docker();
 export default class HttpInvoke extends Invoke {
   private runner: any;
   private watcher?: any;
+  private assumeYes: boolean
 
   constructor(
     tunnelService: TunnelService,
@@ -50,6 +51,7 @@ export default class HttpInvoke extends Invoke {
     debuggerPath?: any,
     debugArgs?: any,
     nasBaseDir?: string,
+    assumeYes?: boolean,
   ) {
     super(
       tunnelService,
@@ -67,6 +69,7 @@ export default class HttpInvoke extends Invoke {
       debugArgs,
       nasBaseDir,
     );
+    this.assumeYes = assumeYes;
     setSigint();
     // exit container, when use ctrl + c
     process.on('SIGINT', async () => {
@@ -221,7 +224,7 @@ export default class HttpInvoke extends Invoke {
 - The NAS source directory exists
 For more information about s.yaml configuration, please refer to: https://github.com/devsapp/fc/blob/main/docs/Others/yaml.md`);
 
-          const isContinue = await isContinueWhenNasMountError();
+          const isContinue = this.assumeYes || await isContinueWhenNasMountError();
           if (!isContinue) {
             await this.cancelExecAndCleanAll()
           } else {

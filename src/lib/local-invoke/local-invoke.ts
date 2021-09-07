@@ -20,7 +20,7 @@ export default class LocalInvoke {
     private readonly debugArgs?: any;
     private readonly sessionId: string;
     private readonly httpInvoke: HttpInvoke;
-    constructor(tunnelService: TunnelService, sessionId: string, creds: ICredentials, region: string, baseDir: string, userServiceConfig: ServiceConfig, userFunctionConfig: FunctionConfig, userHttpTrigger?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: any, debugArgs?: any, nasBaseDir?: string) {
+    constructor(tunnelService: TunnelService, sessionId: string, creds: ICredentials, region: string, baseDir: string, userServiceConfig: ServiceConfig, userFunctionConfig: FunctionConfig, userHttpTrigger?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: any, debugArgs?: any, nasBaseDir?: string, assumeYes?: boolean,) {
         this.sessionId = sessionId;
         this.serviceConfig = userServiceConfig;
         this.functionConfig = userFunctionConfig;
@@ -34,7 +34,7 @@ export default class LocalInvoke {
         this.tmpDir = tmpDir;
         this.debuggerPath = debuggerPath;
         this.debugArgs = debugArgs;
-        this.httpInvoke = new HttpInvoke(tunnelService, this.sessionId, this.creds, this.region, this.baseDir, this.serviceConfig, this.functionConfig, this.httpTrigger, this.debugPort, this.debugIde, this.tmpDir, this.debuggerPath, this.debugArgs, this.nasBaseDir);
+        this.httpInvoke = new HttpInvoke(tunnelService, this.sessionId, this.creds, this.region, this.baseDir, this.serviceConfig, this.functionConfig, this.httpTrigger, this.debugPort, this.debugIde, this.tmpDir, this.debuggerPath, this.debugArgs, this.nasBaseDir, assumeYes);
     }
 
     public async setup(): Promise<any> {
