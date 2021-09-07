@@ -198,6 +198,7 @@ export default class FcTunnelInvokeComponent {
       debuggerPath,
       debugArgs,
       nasBaseDir,
+      assumeYes
     );
     await localInvoke.setup();
   }
