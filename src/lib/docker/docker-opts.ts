@@ -15,7 +15,7 @@ export const DOCKER_REGISTRIES: string[] = [
   "registry.cn-beijing.aliyuncs.com",
   "registry.hub.docker.com"
 ];
-const IMAGE_VERSION: string = process.env.FC_DOCKER_VERSION || '1.9.20';
+const IMAGE_VERSION: string = process.env.FC_DOCKER_VERSION || '1.9.21';
 
 
 let DOCKER_REGISTRY_CACHE;
@@ -138,24 +138,24 @@ export function generateContainerName(serviceName: string, functionName: string,
     + (debugPort ? '-debug' : '-run');
 }
 
-export async function generateLocalStartOpts(proxyContainerName: string, runtime, name, mounts, cmd, envs, resourcesLimit, { debugPort, dockerUser, debugIde = null, imageName }) {
+export async function generateLocalStartOpts(proxyContainerName: string, runtime, name, mounts, cmd, envs, limitedHostConfig, { debugPort, dockerUser, debugIde = null, imageName }) {
   if (isCustomContainerRuntime(runtime)) {
-    return genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd, envs, imageName,resourcesLimit);
+    return genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd, envs, imageName,limitedHostConfig);
   }
-  return await genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde, resourcesLimit);
+  return await genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde, limitedHostConfig);
 }
 
-async function genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde, resourcesLimit) {
+async function genNonCustomContainerLocalStartOpts(proxyContainerName, runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde, limitedHostConfig) {
+  const { Memory, Ulimits, CpuPeriod, CpuQuota } = limitedHostConfig;
   const hostOpts: any = {
     HostConfig: {
       AutoRemove: true,
       Mounts: mounts,
       Privileged: true,
-      Memory: resourcesLimit.memorySize,
-      CpusetCpus: resourcesLimit.cpuCores,
-      Ulimits: resourcesLimit.ulimits,
-      CpuPeriod: resourcesLimit.cpuPeriod,
-      CpuQuota: resourcesLimit.cpuQuota
+      Memory,
+      Ulimits,
+      CpuPeriod,
+      CpuQuota
     }
   };
   if (!_.isEmpty(proxyContainerName)) {
@@ -215,17 +215,17 @@ function encryptDockerOpts(dockerOpts: any): any {
   return encryptedOpts;
 }
 
-function genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd, envs, imageName, resourcesLimit) {
+function genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd, envs, imageName, limitedHostConfig) {
+  const { Memory, Ulimits, CpuPeriod, CpuQuota } = limitedHostConfig;
   const hostOpts: any = {
     HostConfig: {
       AutoRemove: true,
       Mounts: mounts,
       Privileged: true,
-      Memory: resourcesLimit.memorySize,
-      CpusetCpus: resourcesLimit.cpuCores,
-      Ulimits: resourcesLimit.ulimits,
-      CpuPeriod: resourcesLimit.cpuPeriod,
-      CpuQuota: resourcesLimit.cpuQuota
+      Memory,
+      Ulimits,
+      CpuPeriod,
+      CpuQuota
     }
   };
   if (!_.isEmpty(proxyContainerName)) {

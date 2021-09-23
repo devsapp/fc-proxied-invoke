@@ -140,7 +140,10 @@ export default class HttpInvoke extends Invoke {
     const cmd = docker.generateDockerCmd(this.runtime, true, this.functionConfig);
     const proxyContainerName: string = genProxyContainerName(this.sessionId);
     this.containerName = docker.generateRamdomContainerName();
-    const containerResourceLimit = docker.generateResourcesLimitOptions(this.functionConfig);    
+    const fcCommon = await core.loadComponent('devsapp/fc-common');
+    const limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+    logger.debug(limitedHostConfig);
+
     const opts = await dockerOpts.generateLocalStartOpts(
       proxyContainerName,
       this.runtime,
@@ -148,7 +151,7 @@ export default class HttpInvoke extends Invoke {
       this.mounts,
       cmd,
       envs,
-      containerResourceLimit,
+      limitedHostConfig,
       {
         debugPort: this.debugPort,
         dockerUser: this.dockerUser,
