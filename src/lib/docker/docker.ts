@@ -23,11 +23,8 @@ import { isAutoConfig, resolveAutoLogConfig } from '../definition';
 import { LogConfig } from '../interface/sls';
 import devnull from 'dev-null';
 import * as core from '@serverless-devs/core';
-import { execSync } from 'child_process';
-import { bytesToSize } from '../utils/utils';
 
 const isWin: boolean = process.platform === 'win32';
-const CPUSET: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
 const docker: any = new Docker();
 draftlog.into(console);
 let containers: any = new Set();
@@ -44,57 +41,6 @@ export async function imageExist(imageUrl: string): Promise<boolean> {
   });
 
   return images.length > 0;
-}
-
-export function generateResourcesLimitOptions(functionConfig: FunctionConfig): any {
-  const { NCPU, MemTotal } = getDockerCpuAndMemoryLimit();
-  let memorySize: number = functionConfig?.memorySize * 1024 * 1024; //bytes
-  if (memorySize > MemTotal) {
-    memorySize = MemTotal;
-    logger.warning(`The memory config exceeds the docker limit. The memory actually allocated: ${bytesToSize(memorySize)}.
-Now the limit of RAM resource is ${MemTotal} bytes. To improve the limit, please refer: https://docs.docker.com/desktop/${
-      isWin ? 'windows' : 'mac'
-    }/#resources.`);
-  }
-  const instanceType: string = functionConfig?.instanceType || 'e1';
-  const memoryCoreRatio: number = instanceType === 'c1' ? 1 / 2048 : 2 / 3072;  // 内存核心比，弹性实例2C/3G，性能实例1C/2G
-  let cpuCores: any = Math.ceil(memoryCoreRatio * functionConfig.memorySize);   // cpuset，根据测试结果看会被cpu period和cpu quota覆盖
-  if (cpuCores > NCPU) {
-    cpuCores = CPUSET.slice(0, NCPU).join(',');
-  } else {
-    cpuCores = CPUSET.slice(0, cpuCores).join(',');
-  }
-  const ulimits: any = [
-    { Name: 'nofile', Soft: 1024, Hard: 1024 },
-    { Name: 'nproc', Soft: 1024, Hard: 1024 },
-  ];
-  const cpuPeriod: number = 50000;
-  const cpuQuota: number = Math.max(Math.ceil(cpuPeriod * memoryCoreRatio * functionConfig.memorySize), cpuPeriod);  // 按照内存分配cpu配额时, 最低为100%，即1Core
-
-  logger.debug(
-    JSON.stringify({
-      memorySize: memorySize,
-      cpuCores: cpuCores,
-      ulimits,
-      cpuPeriod,
-      cpuQuota,
-    }),
-  );
-
-  return {
-    memorySize: memorySize,
-    cpuCores: cpuCores,
-    ulimits,
-    cpuPeriod,
-    cpuQuota,
-  };
-}
-
-function getDockerCpuAndMemoryLimit(): any {
-  const execRes = execSync(`docker info --format '{{json .}}'`);
-  const dockerInfo = JSON.parse(execRes.toString());
-  const { NCPU, MemTotal } = dockerInfo;
-  return { NCPU, MemTotal };
 }
 
 export function generateRamdomContainerName(): string {
