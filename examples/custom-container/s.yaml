@@ -8,11 +8,11 @@ services:
     props:
       region: cn-shanghai
       service:
-        name: qianfeng-fc-deploy-service
+        name: fc-deploy-service
         description: 'demo for fc-deploy component'
         internetAccess: true
         role:
-          name: qianfeng-fc-deploy-role
+          name: fc-deploy-role
           policies:
             - AliyunContainerRegistryReadOnlyAccess
       function:
@@ -39,5 +39,5 @@ services:
           protocol: HTTP
           routeConfigs:
             - path: /*
-              serviceName: qianfeng-fc-deploy-service
+              serviceName: fc-deploy-service
               functionName: custom-container-function
