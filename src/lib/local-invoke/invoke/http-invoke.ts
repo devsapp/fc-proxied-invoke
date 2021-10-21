@@ -34,7 +34,7 @@ const dockerClient: any = new Docker();
 export default class HttpInvoke extends Invoke {
   private runner: any;
   private watcher?: any;
-  private assumeYes: boolean
+  private assumeYes: boolean;
 
   constructor(
     tunnelService: TunnelService,
@@ -140,9 +140,22 @@ export default class HttpInvoke extends Invoke {
     const cmd = docker.generateDockerCmd(this.runtime, true, this.functionConfig);
     const proxyContainerName: string = genProxyContainerName(this.sessionId);
     this.containerName = docker.generateRamdomContainerName();
-    const fcCommon = await core.loadComponent('devsapp/fc-common');
-    const limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
-    logger.debug(limitedHostConfig);
+
+    let limitedHostConfig;
+    try {
+      const fcCommon = await core.loadComponent('devsapp/fc-common');
+      limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+      logger.debug(limitedHostConfig);
+    } catch (err) {
+      logger.debug(err);
+      logger.warning("Try to generate the container's resource limit configuration bug failed. The default configuration of docker will be used.");
+      limitedHostConfig = {
+        CpuPeriod: null,
+        CpuQuota: null,
+        Memory: null,
+        Ulimits: null,
+      };
+    }
 
     const opts = await dockerOpts.generateLocalStartOpts(
       proxyContainerName,
@@ -237,7 +250,7 @@ export default class HttpInvoke extends Invoke {
 - The NAS source directory exists
 For more information about s.yaml configuration, please refer to: https://github.com/devsapp/fc/blob/main/docs/Others/yaml.md`);
 
-          const isContinue = this.assumeYes || await isContinueWhenNasMountError();
+          const isContinue = this.assumeYes || (await isContinueWhenNasMountError());
           if (!isContinue) {
             await this.cancelExecAndCleanAll();
           } else {
