@@ -1,6 +1,6 @@
 {
   "name": "fc-proxied-invoke",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "This is a component demo for Serverless Devs Tool ",
   "autoInstall": false,
   "keywords": [
@@ -25,15 +25,14 @@
   "scripts": {
     "zip": "cd ./src/lib/helper/cleaner/ && npm install && make -C ./ package && cd ../../../../",
     "start": "npm run prebuild && ex -sc '15i|//@ts-ignore' -cx node_modules/draftlog/index.d.ts && npm run watch && npm run zip",
-    "watch": "npm run doc && tsc -w",
+    "watch": "tsc -w",
     "publish": "npm run build && s cli platform publish",
     "prebuild": "rm -rf node_modules && rm -rf package-lock.json && npm i && rimraf dist",
     "build": "ncc build src/index.ts -m -e @serverless-devs/core -e @alicloud/credentials -o dist && npm run zip",
-    "postbuild": "rm -rf node_modules && rm -rf package-lock.json && npm install @alicloud/credentials",
-    "doc": "npx typedoc src --json doc/doc.json --out doc"
+    "postbuild": "rm -rf node_modules && rm -rf package-lock.json && npm install @alicloud/credentials"
   },
   "dependencies": {
-    "@alicloud/credentials": "^2.1.1",
+    "@alicloud/credentials": "^2.2.0",
     "@alicloud/fc2": "^2.2.2",
     "@alicloud/pop-core": "^1.7.10",
     "@alicloud/tunnel-service20210509": "^0.1.1",
@@ -72,7 +71,6 @@
     "eslint": "^7.7.0",
     "javascript-obfuscator": "^2.15.5",
     "ts-node": "^8.10.2",
-    "typedoc": "^0.20.35",
     "typescript": "^3.9.7"
   }
 }
