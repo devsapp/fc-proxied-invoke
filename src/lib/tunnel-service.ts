@@ -33,7 +33,7 @@ import {CustomDomainConfig, RouteConfig} from "./interface/fc-custom-domain";
 import {FcRemoteInvokeComponent} from "./component/fc-remote-invoke";
 import {setKVInState, unsetKVInState} from "./utils/devs";
 import Docker from 'dockerode';
-import {isCustomContainerRuntime} from "./utils/runtime";
+import {isCustomContainerRuntime, isCustomRuntime} from "./utils/runtime";
 import StdoutFormatter from "./component/stdout-formatter";
 import {processMakeHelperFunctionErr} from "./error-processor";
 import {promiseRetry} from "./retry";
@@ -635,7 +635,7 @@ export default class TunnelService {
             TUNNEL_SERVICE_AK_ID: this.credentials?.AccessKeyID,
             TUNNEL_SERVICE_AK_SECRET: this.credentials?.AccessKeySecret,
         };
-        if (isCustomContainerRuntime(this.userFunctionConfig?.runtime)) {
+        if (isCustomContainerRuntime(this.userFunctionConfig?.runtime) || isCustomRuntime(this.userFunctionConfig?.runtime)) {
             Object.assign(envs, {
                 FC_CA_PORT: this.userFunctionConfig?.caPort || 9000
             });
