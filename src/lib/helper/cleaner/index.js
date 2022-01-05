@@ -89,10 +89,14 @@ exports.handler = async function (event, context, callback) {
               }
               
               // 删除弹性实例配置
-              const method = 'DELETE';
-              const path = `/services/${serviceName}.${alias}/functions/${functionName}/on-demand-config`;
-              const elasticityRes = await fcClient.request(method, path, null, JSON.stringify({}));
-              console.log(`On-demand config delete result: ${elasticityRes}`);
+              try {
+                const method = 'DELETE';
+                const path = `/services/${serviceName}.${alias}/functions/${functionName}/on-demand-config`;
+                const elasticityRes = await fcClient.request(method, path, null, JSON.stringify({}));
+                console.log(`On-demand config delete result: ${elasticityRes}`);
+              } catch (err) {
+                console.log(err);
+              }
 
               // remove function and service
               if (res.data.target === 0 && res.data.current === 0) {
@@ -120,19 +124,18 @@ exports.handler = async function (event, context, callback) {
         for (let c of res2.data.customDomains) {
             const domainName = c.domainName;
             //console.log(domainName);
-            if(domainName.endsWith('fc.devsapp.net') && domainName.includes('session-s-')){
+            if(domainName.endsWith('fc.devsapp.net') && (domainName.includes('session-') || domainName.includes('SESSION-'))){
                 const srvName = domainName.split(".")[1]
-                if(!srvName.startsWith('session-s-')){
-                  continue;
-                }
-                try {
-                  await fcClient.getService(srvName);
-                } catch (error) { 
-                // 如果不能 get 到对应的 service, 这个 custom domain 应该删除
-                if(error.code === 'ServiceNotFound') {
-                    console.log(`delete invalid custom domain: ${domainName}`);
-                    await fcClient.deleteCustomDomain(domainName);
-                  } 
+                if(srvName.startsWith('session-') || srvName.startsWith('SESSION-')){
+                  try {
+                    await fcClient.getService(srvName);
+                  } catch (error) { 
+                  // 如果不能 get 到对应的 service, 这个 custom domain 应该删除
+                  if(error.code === 'ServiceNotFound') {
+                      console.log(`delete invalid custom domain: ${domainName}`);
+                      await fcClient.deleteCustomDomain(domainName);
+                    } 
+                  }
                 }
             }
         }
