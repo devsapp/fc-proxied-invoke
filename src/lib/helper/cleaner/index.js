@@ -45,7 +45,7 @@ exports.handler = async function (event, context, callback) {
         endpoint: tunnerServiceHost,
       });
 
-      let res = await fcClient.listServices({ prefix: 'SESSION-' });
+      let res = await fcClient.listServices({ prefix: 'SESSION-', limit: 100});
       for (let service of res.data.services) {
         console.log(`detect session service ${service.serviceName}`);
         const functionRes = await fcClient.listFunctions(service.serviceName);
@@ -69,14 +69,16 @@ exports.handler = async function (event, context, callback) {
           if (state === 'NotExist' || state === 'CLOSED') {
             console.log(`closing session service ${sessionId}`);
             try {
+              const serviceName = service.serviceName;
+              const functionName = functions[0].functionName;
               // reset provision
-              await fcClient.putProvisionConfig(service.serviceName, functions[0].functionName, alias, { target: 0 });
-              res = await fcClient.getProvisionConfig(service.serviceName, functions[0].functionName, alias);
+              await fcClient.putProvisionConfig(serviceName, functionName, alias, { target: 0 });
+              res = await fcClient.getProvisionConfig(serviceName, functionName, alias);
 
               // await provision reseted
               while (res.data.target !== 0 || res.data.current !== 0) {
-                await fcClient.putProvisionConfig(service.serviceName, functions[0].functionName, alias, { target: 0 });
-                res = await fcClient.getProvisionConfig(service.serviceName, functions[0].functionName, alias);
+                await fcClient.putProvisionConfig(serviceName, functionName, alias, { target: 0 });
+                res = await fcClient.getProvisionConfig(serviceName, functionName, alias);
                 await sleep(1000);
               }
 
@@ -85,17 +87,57 @@ exports.handler = async function (event, context, callback) {
               for(let trigger of triggerRes.data.triggers) {
                 await fcClient.deleteTrigger(service.serviceName, functions[0].functionName, trigger.triggerName);
               }
+              
+              // 删除弹性实例配置
+              const method = 'DELETE';
+              const path = `/services/${serviceName}.${alias}/functions/${functionName}/on-demand-config`;
+              const elasticityRes = await fcClient.request(method, path, null, JSON.stringify({}));
+              console.log(`On-demand config delete result: ${elasticityRes}`);
 
               // remove function and service
               if (res.data.target === 0 && res.data.current === 0) {
-                await fcClient.deleteFunction(service.serviceName, functions[0].functionName);
-                await fcClient.deleteService(service.serviceName);
+                await fcClient.deleteFunction(serviceName, functionName);
+                await fcClient.deleteService(serviceName);
               }
             } catch (err) {
               console.log(err);
               retry(err);
             }
           }
+        }
+      }
+
+      // 删除无效的端云联调产生的 custom domain
+      let nextToken = null
+      while(1){
+        let options = { limit: 100 }
+        if(nextToken) {
+            options.nextToken = nextToken;
+        }
+        let res2 = await fcClient.listCustomDomains(options);
+        nextToken = res2.data.nextToken;
+        console.log(`nextToken=${res2.data.nextToken}`);
+        for (let c of res2.data.customDomains) {
+            const domainName = c.domainName;
+            //console.log(domainName);
+            if(domainName.endsWith('fc.devsapp.net') && domainName.includes('session-s-')){
+                const srvName = domainName.split(".")[1]
+                if(!srvName.startsWith('session-s-')){
+                  continue;
+                }
+                try {
+                  await fcClient.getService(srvName);
+                } catch (error) { 
+                // 如果不能 get 到对应的 service, 这个 custom domain 应该删除
+                if(error.code === 'ServiceNotFound') {
+                    console.log(`delete invalid custom domain: ${domainName}`);
+                    await fcClient.deleteCustomDomain(domainName);
+                  } 
+                }
+            }
+        }
+        if(nextToken === undefined || nextToken ===null){
+            break;
         }
       }
     } catch (err) {
