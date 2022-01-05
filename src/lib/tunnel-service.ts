@@ -296,7 +296,7 @@ export default class TunnelService {
         return helperFunctionConfig;
     }
 
-    private genHelperCustomDomainConfig(): CustomDomainConfig[] {
+    private async genHelperCustomDomainConfig(): Promise<CustomDomainConfig[]> {
         if (_.isEmpty(this.userCustomDomainConfigList)) { return []; }
         let customDomainConfigList: CustomDomainConfig[] = [];
         for (const userDomain of this.userCustomDomainConfigList) {
@@ -315,11 +315,33 @@ export default class TunnelService {
                 protocol: userDomain?.protocol,
                 routeConfigs: routeConfigList.filter((r) => (r)),
             }
+            // 如果是 auto，自动生成的域名， 不是使用代理 service 和 function 生成的 domain
+            // 而是固定的， 使用 s.yaml 本身 service 和 function 生成 domain
+            if (domain.domainName.toLowerCase() === 'auto'){
+                const fcDomain = await core.loadComponent('devsapp/domain');
+                let inputs = {
+                    credentials: this.credentials,
+                    props: {
+                        type: 'fc',
+                        user: this.credentials.AccountID,
+                        region: this.region,
+                        service: this.userServiceConfig.name,
+                        function: this.userFunctionConfig.name
+                    },
+                    project: {
+                        access: this.access
+                    }
+                };
+                logger.debug(`get proxy function inputs = ${inputs}`);
+                const domainName = await fcDomain.get(inputs);
+                domain.domainName = domainName;
+            }
             if (userDomain?.certConfig) {
                 Object.assign(domain, {
                     certConfig: domain?.certConfig
                 });
             }
+            console.log('\x1b[35m%s\x1b[0m', `[FC-PROXIED-INVOKE] get helper function ${this.userServiceConfig.name}/${this.userFunctionConfig.name} domainName: ${domain.domainName}`); 
             customDomainConfigList.push(domain);
         }
         return customDomainConfigList;
@@ -330,7 +352,7 @@ export default class TunnelService {
         const helperFunctionConfig: FunctionConfig = this.genHelperFunctionConfig();
         // TODO: 删除指定版本的触发器
         const helperTriggerConfigList: TriggerConfig[] = this.userTriggerConfigList;
-        const helperCustomDomainConfigList: CustomDomainConfig[] = this.genHelperCustomDomainConfig();
+        const helperCustomDomainConfigList: CustomDomainConfig[] = await this.genHelperCustomDomainConfig();
         const fcDeployComponent: FcDeployComponent = new FcDeployComponent(this.region, helperServiceConfig, this.access, this.appName, this.path, helperFunctionConfig, helperTriggerConfigList, helperCustomDomainConfigList);
         const fcDeployComponentInputs: InputProps = fcDeployComponent.genComponentInputs('fc-deploy', 'fc-deploy-project', '--use-local', 'deploy');
         const fcDeployComponentIns: any = await core.loadComponent(`devsapp/fc-deploy`);
