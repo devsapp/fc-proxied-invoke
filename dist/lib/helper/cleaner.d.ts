@@ -1,4 +1,4 @@
-export declare const CLEANER_VERSION = "0.0.2";
+export declare const CLEANER_VERSION = "0.0.3";
 export declare const CLEANERCONFIG: {
     serviceConfig: {
         name: string;

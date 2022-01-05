@@ -1,6 +1,6 @@
 import path from 'path';
 import { isNccPath } from '../utils/path';
-export const CLEANER_VERSION = '0.0.2';
+export const CLEANER_VERSION = '0.0.3';
 export const CLEANERCONFIG = {
   serviceConfig: {
     name: '_FC_Session_Service_Cleaner',
