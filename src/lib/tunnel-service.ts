@@ -149,7 +149,19 @@ export default class TunnelService {
                     await this.saveSession();
                     return;
                 } catch (ex) {
-                    if (ex.code === 'AccessDenied') {
+                    if (ex.toString().includes('code: 403, You do not have permission to perform this operation')) {
+                        const policy = {
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": "tns:*",
+                                    "Resource": "*"
+                                }
+                            ],
+                            "Version": "1"
+                        }
+                        logger.error("Your access must attch a RAM policy as follow:");
+                        console.log('\x1b[35m%s\x1b[0m', JSON.stringify(policy, null, 4));
                         throw ex;
                     }
                     logger.debug(`Create session failed, error is: \n${ex}`);
