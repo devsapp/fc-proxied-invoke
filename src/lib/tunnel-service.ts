@@ -67,7 +67,7 @@ export default class TunnelService {
     // private static defaultFunctionImage: string = `registry.${TunnelService.defaultRegion}.aliyuncs.com/aliyunfc/ts-remote:v0.2`;
     private static readonly proxyImageName: string = 'ts-local';
     private static readonly proxyImageStableVersion: string = 'v0.1.1';
-    private static readonly helperImageStableVersion: string = 'v0.1.1'
+    private static readonly helperImageStableVersion: string = 'v0.1.2'
     private static readonly helperImageVersion: string = process.env['TUNNEL_SERVICE_HELPER_IMAGE_LATEST_VERSION'] || TunnelService.helperImageStableVersion;
     private static readonly proxyImageVersion: string = process.env['TUNNEL_SERVICE_PROXY_IMAGE_LATEST_VERSION'] || TunnelService.proxyImageStableVersion;
     private static readonly proxyImageRepo: string = 'aliyunfc';
@@ -251,6 +251,11 @@ export default class TunnelService {
         // 删除 nas 配置
         // if (isAutoConfig(helperServiceConfig?.nasConfig)) { delete helperServiceConfig.nasConfig; }
         delete helperServiceConfig.nasConfig;
+
+        // 删除 auto 的 logconfig 配置
+        if(helperServiceConfig.logConfig && (helperServiceConfig.logConfig === 'auto' || helperServiceConfig.logConfig === 'Auto')) {
+            delete helperServiceConfig.logConfig;
+        }
         return helperServiceConfig;
     }
 
