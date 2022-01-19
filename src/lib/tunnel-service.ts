@@ -182,7 +182,7 @@ export default class TunnelService {
 
         const proxyContainerVm: any = core.spinner(`Starting proxy container...`);
         try {
-            await this.runProxyContainer();
+            await this.runProxyContainer(proxyContainerVm);
             proxyContainerVm.succeed(`Proxy container is running.`);
         } catch (e) {
             proxyContainerVm.fail(`Start proxy container failed.`);
@@ -562,9 +562,12 @@ export default class TunnelService {
         }
         return {};
     }
-    private async runProxyContainer(): Promise<any> {
+    private async runProxyContainer(vm?): Promise<any> {
+        const imageUrl = `${TunnelService.proxyImaggeRegistry}/${TunnelService.proxyImageRepo}/${TunnelService.proxyImageName}:${TunnelService.proxyImageVersion}`;
         // pull image if need
-        await pullImageIfNeed(TunnelService.proxyImaggeRegistry, TunnelService.proxyImageRepo, TunnelService.proxyImageName, TunnelService.proxyImageVersion);
+        vm?.stop();
+        await pullImageIfNeed(imageUrl);
+        vm?.start();
         // run container in background
         const opts: any = this.generateProxyContainerOpts();
         const { stdoutFilePath, stderrFilePath } = this.genOutputFileOfProxyContainer();

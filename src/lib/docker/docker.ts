@@ -1,7 +1,7 @@
+import * as core from '@serverless-devs/core';
 import Docker from 'dockerode';
 import Container from 'dockerode';
 import logger from '../../common/logger';
-import * as draftlog from 'draftlog';
 import { findPathsOutofSharedPaths } from './docker-support';
 import { processorTransformFactory } from '../error-processor';
 import _ from 'lodash';
@@ -22,77 +22,21 @@ import { ICredentials } from '../../common/entity';
 import { isAutoConfig, resolveAutoLogConfig } from '../definition';
 import { LogConfig } from '../interface/sls';
 import devnull from 'dev-null';
-import * as core from '@serverless-devs/core';
 
 const isWin: boolean = process.platform === 'win32';
 const docker: any = new Docker();
-draftlog.into(console);
+
 let containers: any = new Set();
 let streams: any = new Set();
 
-// todo: add options for pull latest image
-const skipPullImage: boolean = true;
-
-export async function imageExist(imageUrl: string): Promise<boolean> {
-  const images: Array<any> = await docker.listImages({
-    filters: {
-      reference: [imageUrl],
-    },
-  });
-
-  return images.length > 0;
-}
 
 export function generateRamdomContainerName(): string {
   return `fc_local_${new Date().getTime()}_${Math.random().toString(36).substr(2, 7)}`;
 }
 
-export async function pullImageIfNeed(imageRegistry: string, imageRepo: string, imageName: string, imageTag: string): Promise<any> {
-  const imageUrl = `${imageRegistry}/${imageRepo}/${imageName}:${imageTag}`;
-  logger.debug(`Proxy image url: ${imageUrl}`);
-  let stream: any;
-  if (!(await imageExist(imageUrl))) {
-    logger.debug(`Starting docker pull ${imageUrl}`);
-    stream = await docker.pull(imageUrl);
-  }
-
-  return await new Promise((resolve, reject) => {
-    if (stream) {
-      const onFinished = (err) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(imageUrl);
-      };
-      const barLines: any = {};
-      const onProgress: Function = (event) => {
-        let status: any = event.status;
-
-        if (event.progress) {
-          status = `${event.status} ${event.progress}`;
-        }
-
-        if (event.id) {
-          const id: number = event.id;
-
-          if (!barLines[id]) {
-            barLines[id] = console.draft();
-          }
-          barLines[id](id + ': ' + status);
-        } else {
-          if (_.has(event, 'aux.ID')) {
-            event.stream = event.aux.ID + '\n';
-          }
-          // If there is no id, the line should be wrapped manually.
-          const out: any = event.status ? event.status + '\n' : event.stream;
-          process.stdout.write(out);
-        }
-      };
-      docker.modem.followProgress(stream, onFinished, onProgress);
-    } else {
-      resolve(imageUrl);
-    }
-  });
+export async function pullImageIfNeed(imageUrl: string) {
+  const fcCore = await core.loadComponent('devsapp/fc-core');
+  await fcCore.pullImageIfNeed(docker, imageUrl);
 }
 
 export function generateDockerCmd(
@@ -233,7 +177,7 @@ export async function generateDockerEnvs(
   return addEnv(envs, nasConfig);
 }
 
-export function generateFunctionEnvs(functionConfig: FunctionConfig): any {
+function generateFunctionEnvs(functionConfig: FunctionConfig): any {
   const environmentVariables = functionConfig.environmentVariables;
 
   if (!environmentVariables) {
@@ -241,85 +185,6 @@ export function generateFunctionEnvs(functionConfig: FunctionConfig): any {
   }
 
   return Object.assign({}, environmentVariables);
-}
-
-export async function pullFcImageIfNeed(imageName, needResolveImageName = true): Promise<void> {
-  const exist: boolean = await imageExist(imageName);
-
-  if (!exist || !skipPullImage) {
-    await pullImage(imageName, needResolveImageName);
-  } else {
-    logger.debug(`skip pulling image ${imageName}...`);
-    logger.info(`Skip pulling image ${imageName}...`);
-  }
-}
-
-export async function pullImage(imageName: string, needResolveImageName?: boolean): Promise<any> {
-  const resolveImageName: string = needResolveImageName ? await dockerOpts.resolveImageNameForPull(imageName) : imageName;
-
-  const stream: any = await docker.pull(resolveImageName);
-
-  return await new Promise((resolve, reject) => {
-    logger.info(`Pulling image ${resolveImageName}, you can also use ` + `'docker pull ${resolveImageName}'` + ' to pull image by yourself.');
-
-    const onFinished = async (err) => {
-      if (err) {
-        reject(err);
-      }
-      containers.delete(stream);
-
-      for (const r of dockerOpts.DOCKER_REGISTRIES) {
-        if (resolveImageName.indexOf(r) === 0) {
-          const image: any = await docker.getImage(resolveImageName);
-
-          const newImageName: string = resolveImageName.slice(r.length + 1);
-          const repoTag: string[] = newImageName.split(':');
-
-          // rename
-          await image.tag({
-            name: resolveImageName,
-            repo: _.first(repoTag),
-            tag: _.last(repoTag),
-          });
-          break;
-        }
-      }
-      resolve(resolveImageName);
-    };
-
-    containers.add(stream);
-    // pull image progress
-    followProgress(stream, onFinished);
-  });
-}
-function followProgress(stream: any, onFinished: any): void {
-  const barLines: any = {};
-
-  const onProgress: Function = (event) => {
-    let status: any = event.status;
-
-    if (event.progress) {
-      status = `${event.status} ${event.progress}`;
-    }
-
-    if (event.id) {
-      const id: number = event.id;
-
-      if (!barLines[id]) {
-        barLines[id] = console.draft();
-      }
-      barLines[id](id + ': ' + status);
-    } else {
-      if (_.has(event, 'aux.ID')) {
-        event.stream = event.aux.ID + '\n';
-      }
-      // If there is no id, the line should be wrapped manually.
-      const out: any = event.status ? event.status + '\n' : event.stream;
-      process.stdout.write(out);
-    }
-  };
-
-  docker.modem.followProgress(stream, onFinished, onProgress);
 }
 
 export async function runContainer(opts, outputStream?: any, errorStream?: any, context?: any) {
@@ -411,7 +276,7 @@ export async function isDockerToolBoxAndEnsureDockerVersion(): Promise<boolean> 
   return process.platform === 'win32' && obj.provider === 'virtualbox';
 }
 
-export async function detectDockerVersion(serverVersion: string): Promise<void> {
+async function detectDockerVersion(serverVersion: string): Promise<void> {
   let cur = serverVersion.split('.');
   // 1.13.1
   if (Number.parseInt(cur[0]) === 1 && Number.parseInt(cur[1]) <= 13) {
@@ -513,14 +378,7 @@ export async function resolvePasswdMount(): Promise<any> {
   return null;
 }
 
-export async function createAndRunContainer(opts): Promise<any> {
-  const container = await createContainer(opts);
-  containers.add(container.id);
-  await container.start({});
-  return container;
-}
-
-export async function showDebugIdeTipsForVscode(
+async function showDebugIdeTipsForVscode(
   serviceName: string,
   functionName: string,
   runtime: string,
@@ -739,20 +597,6 @@ async function waitForExec(exec) {
     }
     waitContainerExec();
   });
-}
-
-export async function run(opts, event, outputStream, errorStream, context = {}): Promise<any> {
-  const { container, stream } = await runContainer(opts, outputStream, errorStream, context);
-
-  writeEventToStreamAndClose(stream, event);
-
-  // exitRs format: {"Error":null,"StatusCode":0}
-  // see https://docs.docker.com/engine/api/v1.37/#operation/ContainerWait
-  const exitRs = await container.wait();
-
-  containers.delete(container.id);
-  streams.delete(stream);
-  return exitRs;
 }
 
 export async function stopContainer(container: Container): Promise<void> {
