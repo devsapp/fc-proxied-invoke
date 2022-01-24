@@ -188,7 +188,7 @@ export default class HttpInvoke extends Invoke {
           }
           await sleep(1000);
           const caPort: number = this.functionConfig?.caPort || 9000;
-          const res: any = await this.runner.exec(['curl', `127.0.0.1:${caPort}`], {
+          const res: any = await this.runner.exec(['bash', '-c', `</dev/tcp/127.0.0.1/${caPort}`], {
             outputStream: isDebug ? process.stdout : devnull(),
             errorStream: isDebug ? process.stderr : devnull(),
           });
