@@ -226,7 +226,6 @@ export default class FcTunnelInvokeComponent {
    * @returns
    */
   public async invoke(inputs: InputProps) {
-    console.log('有效');
     const { serviceConfig, functionConfig, region, creds, isHelp, access, appName, curPath, args } = await this.handlerInputs(inputs);
     if (isHelp) {
       // TODO: help info
