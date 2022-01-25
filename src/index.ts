@@ -178,29 +178,46 @@ export default class FcTunnelInvokeComponent {
       memorySize,
       assumeYes,
     );
-    await tunnelService.setup();
-    const session: Session = tunnelService.getSession();
-    const httpTrigger: TriggerConfig = getHttpTrigger(triggerConfigList);
+  
+    let localInvoke: LocalInvoke;
+    try {
+      await tunnelService.setup();
+      const session: Session = tunnelService.getSession();
+      const httpTrigger: TriggerConfig = getHttpTrigger(triggerConfigList);
 
-    const tmpDir = await ensureTmpDir(argsData['tmp-dir'], devsPath, serviceConfig?.name, functionConfig?.name);
-    const localInvoke: LocalInvoke = new LocalInvoke(
-      tunnelService,
-      session?.sessionId,
-      creds,
-      region,
-      baseDir,
-      serviceConfig,
-      functionConfig,
-      httpTrigger,
-      debugPort,
-      debugIde,
-      tmpDir,
-      debuggerPath,
-      debugArgs,
-      nasBaseDir,
-      assumeYes
-    );
-    await localInvoke.setup();
+      const tmpDir = await ensureTmpDir(argsData['tmp-dir'], devsPath, serviceConfig?.name, functionConfig?.name);
+      localInvoke = new LocalInvoke(
+        tunnelService,
+        session?.sessionId,
+        creds,
+        region,
+        baseDir,
+        serviceConfig,
+        functionConfig,
+        httpTrigger,
+        debugPort,
+        debugIde,
+        tmpDir,
+        debuggerPath,
+        debugArgs,
+        nasBaseDir,
+        assumeYes
+      );
+      await localInvoke.setup();
+    } catch (ex) {
+      try {
+        await tunnelService.clean();
+      } catch (_ex) {
+        logger.debug(_ex);
+      }
+      try {
+        await localInvoke?.clean?.();
+      } catch (_ex) {
+        logger.debug(_ex);
+      }
+
+      throw ex;
+    }
   }
 
   /**
@@ -209,6 +226,7 @@ export default class FcTunnelInvokeComponent {
    * @returns
    */
   public async invoke(inputs: InputProps) {
+    console.log('有效');
     const { serviceConfig, functionConfig, region, creds, isHelp, access, appName, curPath, args } = await this.handlerInputs(inputs);
     if (isHelp) {
       // TODO: help info

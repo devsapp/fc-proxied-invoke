@@ -145,7 +145,7 @@ export default class HttpInvoke extends Invoke {
     try {
       const fcCommon = await core.loadComponent('devsapp/fc-common');
       limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
-      logger.debug(limitedHostConfig);
+      logger.debug(JSON.stringify(limitedHostConfig));
     } catch (err) {
       logger.debug(err);
       logger.warning("Try to generate the container's resource limit configuration bug failed. The default configuration of docker will be used.");
@@ -171,6 +171,7 @@ export default class HttpInvoke extends Invoke {
         imageName: this.imageName,
       },
     );
+    // runner 失败了
     this.runner = await docker.startContainer(opts, process.stdout, process.stderr, {
       serviceName: this.serviceName,
       functionName: this.functionName,
@@ -187,7 +188,7 @@ export default class HttpInvoke extends Invoke {
           }
           await sleep(1000);
           const caPort: number = this.functionConfig?.caPort || 9000;
-          const res: any = await this.runner.exec(['curl', `127.0.0.1:${caPort}`], {
+          const res: any = await this.runner.exec(['bash', '-c', `</dev/tcp/127.0.0.1/${caPort}`], {
             outputStream: isDebug ? process.stdout : devnull(),
             errorStream: isDebug ? process.stderr : devnull(),
           });
