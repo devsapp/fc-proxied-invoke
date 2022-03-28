@@ -23,29 +23,12 @@ import { NasConfig } from './lib/interface/nas';
 export default class FcTunnelInvokeComponent {
   static readonly supportedDebugIde: string[] = ['vscode', 'intellij'];
 
-  async report(componentName: string, command: string, accountID?: string, access?: string): Promise<void> {
-    let uid: string = accountID;
-    if (_.isEmpty(accountID)) {
-      const credentials: ICredentials = await core.getCredential(access);
-      uid = credentials.AccountID;
-    }
-    try {
-      core.reportComponent(componentName, {
-        command,
-        uid,
-      });
-    } catch (e) {
-      logger.warning(StdoutFormatter.stdoutFormatter.warn('component report', `component name: ${componentName}, method: ${command}`, e.message));
-    }
-  }
-
   async handlerInputs(inputs: InputProps): Promise<{ [key: string]: any }> {
     await StdoutFormatter.initStdout();
     const project = inputs?.project;
     const access: string = project?.access;
     const creds: ICredentials = await core.getCredential(access);
     validateCredentials(creds);
-    await this.report('fc-tunnel-invoke', inputs?.command, creds?.AccountID, inputs?.project?.access);
 
     const properties: IProperties = inputs?.props;
 
