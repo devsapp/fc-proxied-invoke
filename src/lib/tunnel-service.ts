@@ -379,14 +379,11 @@ export default class TunnelService {
                 const deployRes: any = await fcDeployComponentIns.deploy(fcDeployComponentInputs);
                 await this.saveHelperFunctionDeployRes(deployRes);
                 // 配置预留之前需要调用一下函数 https://github.com/devsapp/fc/issues/664#issuecomment-1073710622
-                // try {
-                //     const alicloudClient: AlicloudClient = new AlicloudClient(this.credentials);
-                //     this.fcClient = await alicloudClient.getFcClient(this.region);
-                //     const rs = await this.fcClient.invokeFunction(helperServiceConfig.name, helperFunctionConfig.name, '');
-                //     console.log('rs:: ', rs);
-                // } catch (ex) {
-                //     console.log('ex', ex);
-                // }
+                try {
+                    const alicloudClient: AlicloudClient = new AlicloudClient(this.credentials);
+                    this.fcClient = await alicloudClient.getFcClient(this.region);
+                    await this.fcClient.invokeFunction(helperServiceConfig.name, helperFunctionConfig.name, '');
+                } catch (_ex) { /* 不阻塞主进程 */ }
 
                 // 设置函数预留为 1，弹性为 0
                 const setHelperVm: any = core.spinner(`Setting helper function with 1 provison and 0 elasticity`);
