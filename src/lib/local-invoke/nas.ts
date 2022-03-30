@@ -12,7 +12,7 @@ export function convertNasConfigToMountCmd(nasConfig: NasConfig | string): any {
   }
 
   if (isNasAuto) {
-      logger.warning(`Remote nas won't be mounted to local when nasConfig is auto.`)
+    logger.warning(`Remote nas won't be mounted to local when nasConfig is auto.`)
   }
 
   if (typeof nasConfig === 'string') {
@@ -50,6 +50,7 @@ export async function convertNasConfigToNasMappings(nasBaseDir: string, nasConfi
 
   const isNasAuto = isAutoConfig(nasConfig);
 
+  // console.log('convertNasConfigToNasMappings:: ', nasConfig);
   if (isNasAuto) {
     // support 'NasConfig: Auto'
     const nasDir = path.join(nasBaseDir, 'auto-default');
