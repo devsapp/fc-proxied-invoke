@@ -26,8 +26,8 @@ export function generateDockerDebugOpts(runtime, debugPort, debugIde) {
   const exposedPort = `${debugPort}/tcp`;
 
   if (debugIde === IDE_PYCHARM) {
-    if (runtime !== 'python2.7' && runtime !== 'python3') {
-      throw new Error(`${IDE_PYCHARM} debug config only support for runtime [python2.7, python3]`);
+    if (runtime !== 'python2.7' && runtime !== 'python3' && runtime !== 'python3.9') {
+      throw new Error(`${IDE_PYCHARM} debug config only support for runtime [python2.7, python3, python3.9]`);
     } else {
       return {};
     }
@@ -55,6 +55,7 @@ export function generateDebugEnv(runtime, debugPort, debugIde) {
   const remoteIp = ip.address();
 
   switch (runtime) {
+  case 'nodejs14':
   case 'nodejs12':
   case 'nodejs10':
   case 'nodejs8':
@@ -63,6 +64,7 @@ export function generateDebugEnv(runtime, debugPort, debugIde) {
     return { 'DEBUG_OPTIONS': `--debug-brk=${debugPort}` };
   case 'python2.7':
   case 'python3':
+  case 'python3.9':
     if (debugIde === IDE_PYCHARM) {
       return {};
     }
@@ -73,7 +75,7 @@ export function generateDebugEnv(runtime, debugPort, debugIde) {
     return { 'DEBUG_OPTIONS': `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=y,address=*:${debugPort}` };
   case 'php7.2':
     console.log(`using remote_ip ${remoteIp}`);
-    return { 'XDEBUG_CONFIG': `remote_enable=1 remote_autostart=1 remote_port=${debugPort} remote_host=${remoteIp}` };
+    return { 'XDEBUG_CONFIG': `remote_enable=1 remote_autostart=1 remote_port=${debugPort} remote_connect_back=1` };
   case 'dotnetcore2.1':
     return { 'DEBUG_OPTIONS': 'true' };
   default:
@@ -108,6 +110,7 @@ export async function generateVscodeDebugConfig(serviceName, functionName, runti
           }
         ]
       };
+    case 'nodejs14':
     case 'nodejs12':
     case 'nodejs10':
     case 'nodejs8':
@@ -127,6 +130,7 @@ export async function generateVscodeDebugConfig(serviceName, functionName, runti
           }
         ]
       };
+    case 'python3.9':
     case 'python3':
     case 'python2.7':
       return {

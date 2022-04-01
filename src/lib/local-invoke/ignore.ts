@@ -39,10 +39,12 @@ function selectIgnored(runtime) {
   case 'nodejs8':
   case 'nodejs10':
   case 'nodejs12':
+  case 'nodejs14':
 
     return ['.s/python'];
   case 'python2.7':
   case 'python3':
+  case 'python3.9':
 
     return ['node_modules'];
   case 'php7.2':

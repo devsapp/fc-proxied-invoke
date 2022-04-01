@@ -601,8 +601,8 @@ export default class TunnelService {
         const exposedPort = `${this.debugPort}/tcp`;
 
         if (this.debugIde === IDE_PYCHARM) {
-            if (runtime !== 'python2.7' && runtime !== 'python3') {
-                throw new Error(`${IDE_PYCHARM} debug config only support for runtime [python2.7, python3]`);
+            if (runtime !== 'python2.7' && runtime !== 'python3' && runtime !== 'python3.9') {
+                throw new Error(`${IDE_PYCHARM} debug config only support for runtime [python2.7, python3, python3.9]`);
             } else {
                 return {};
             }
