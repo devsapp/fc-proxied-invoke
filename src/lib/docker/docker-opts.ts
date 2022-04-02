@@ -130,6 +130,9 @@ function supportCustomBootstrapFile(runtime, envs) {
 }
 
 export function resolveMockScript(runtime: string): string {
+  if(runtime=='python3.9'){
+    return `/var/fc/runtime/python3/mock`;
+  }
   return `/var/fc/runtime/${runtime}/mock`;
 }
 

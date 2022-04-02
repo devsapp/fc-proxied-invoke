@@ -114,7 +114,8 @@ export default class FcTunnelInvokeComponent {
       alias: {
         help: 'h',
         'debug-port': 'd',
-        'assume-yes': 'y'
+        'assume-yes': 'y',
+        config: 'c',
       },
     });
     const argsData: any = parsedArgs?.data || {};
