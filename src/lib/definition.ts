@@ -1,5 +1,5 @@
 import {NasConfig} from "./interface/nas";
-import _ from 'lodash';
+import {lodash as _} from '@serverless-devs/core';
 import {TriggerConfig} from "./interface/fc-trigger";
 import {LogConfig} from "./interface/sls";
 import {CustomDomainConfig} from "./interface/fc-custom-domain";

@@ -6,7 +6,7 @@ import { FunctionConfig } from '../../interface/fc-function';
 import { TriggerConfig } from '../../interface/fc-trigger';
 import { CustomDomainConfig } from '../../interface/fc-custom-domain';
 import * as path from 'path';
-import * as _ from 'lodash';
+import { lodash as _ } from '@serverless-devs/core';
 import * as docker from '../../docker/docker';
 import logger from '../../../common/logger';
 import * as dockerOpts from '../../docker/docker-opts';

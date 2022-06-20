@@ -1,5 +1,5 @@
 import {ICredentials} from "../common/entity";
-import _ from 'lodash';
+import { lodash as _ } from '@serverless-devs/core';
 import logger from '../common/logger';
 import StdoutFormatter from './component/stdout-formatter';
 

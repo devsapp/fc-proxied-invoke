@@ -1,7 +1,7 @@
 import * as path from "path";
+import { lodash as _ } from '@serverless-devs/core';
 const USER_HOME = require('os').homedir();
 const fs = require('fs-extra');
-import _ from 'lodash';
 
 const defaultFileSharingPaths = [
     '/Users',

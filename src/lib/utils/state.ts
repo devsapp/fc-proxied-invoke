@@ -1,8 +1,9 @@
-import _ from 'lodash';
 import * as core from '@serverless-devs/core';
 import { Session } from '../interface/session';
 import { unsetKVInState } from './devs';
 import logger from '../../common/logger';
+
+const _ = core.lodash;
 
 export async function getInvokeContainerIdFromState(accountID: string, region: string, serviceName: string, functionName: string): Promise<any> {
     return await getAttributeFromState(accountID, region, serviceName, functionName, 'invokeContainerId')

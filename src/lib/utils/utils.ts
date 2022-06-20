@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import { lodash as _ } from '@serverless-devs/core';
 
 export function mark(source: string): string {
   if (!source) {

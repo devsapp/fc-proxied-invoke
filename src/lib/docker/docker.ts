@@ -4,7 +4,6 @@ import Container from 'dockerode';
 import logger from '../../common/logger';
 import { findPathsOutofSharedPaths } from './docker-support';
 import { processorTransformFactory } from '../error-processor';
-import _ from 'lodash';
 import { NasConfig } from '../interface/nas';
 import * as nas from '../local-invoke/nas';
 import path from 'path';
@@ -22,6 +21,8 @@ import { ICredentials } from '../../common/entity';
 import { isAutoConfig, resolveAutoLogConfig } from '../definition';
 import { LogConfig } from '../interface/sls';
 import devnull from 'dev-null';
+
+const _ = core.lodash;
 
 const isWin: boolean = process.platform === 'win32';
 const docker: any = new Docker();

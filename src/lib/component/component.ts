@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import { lodash as _ } from '@serverless-devs/core';
 import { InputProps } from '../../common/entity'
 import logger from '../../common/logger';
 

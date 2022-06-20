@@ -32,7 +32,7 @@
     "postbuild": "rm -rf node_modules && rm -rf package-lock.json && npm install @alicloud/credentials"
   },
   "dependencies": {
-    "@alicloud/credentials": "^2.2.1",
+    "@alicloud/credentials": "^2.2.3",
     "@alicloud/fc2": "^2.2.2",
     "@alicloud/pop-core": "^1.7.10",
     "@alicloud/tunnel-service20210509": "^0.1.1",
@@ -49,7 +49,6 @@
     "inquirer": "^8.1.2",
     "ip": "^1.1.5",
     "js-yaml": "^4.1.0",
-    "lodash": "^4.17.21",
     "nested-object-assign": "^1.0.4",
     "node-machine-id": "^1.1.12",
     "node-watch": "^0.7.1",

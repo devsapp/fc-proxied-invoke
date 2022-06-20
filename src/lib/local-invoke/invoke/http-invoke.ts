@@ -19,7 +19,6 @@ import { genProxyContainerName } from '../../definition';
 import { sleep } from '../../utils/time';
 import { setSigint } from '../../utils/process';
 import { setKVInState } from '../../utils/devs';
-import _ from 'lodash';
 import { promiseRetry } from '../../retry';
 import * as core from '@serverless-devs/core';
 import StdoutFormatter from '../../component/stdout-formatter';
@@ -29,6 +28,7 @@ import devnull from 'dev-null';
 import { convertNasConfigToMountCmd } from '../nas';
 import { isContinueWhenNasMountError } from '../../prompt';
 
+const _ = core.lodash;
 const dockerClient: any = new Docker();
 
 export default class HttpInvoke extends Invoke {

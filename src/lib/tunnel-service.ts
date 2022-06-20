@@ -5,7 +5,6 @@ import {ICredentials, InputProps} from "../common/entity";
 import {AlicloudClient} from "./client/client";
 import {ServiceConfig} from "./interface/fc-service";
 import {FunctionConfig} from "./interface/fc-function";
-import _ from 'lodash';
 import * as YAML from 'js-yaml';
 import {FcDeployComponent} from "./component/fc-deploy";
 import { sleep } from './utils/time';
@@ -42,6 +41,7 @@ import { FcApiComponent } from './component/fc-api'
 import { deployCleaner } from './helper/deploy';
 import { isDeleteOssTriggerAndContinue } from './prompt'
 
+const _ = core.lodash;
 const docker: any = new Docker();
 const IDE_PYCHARM: string = 'pycharm';
 

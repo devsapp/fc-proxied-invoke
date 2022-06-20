@@ -1,6 +1,4 @@
-import { loadComponent } from '@serverless-devs/core';
-
-import * as _ from 'lodash';
+import { loadComponent, lodash as _ } from '@serverless-devs/core';
 import { addEnv } from '../local-invoke/env';
 import logger from '../../common/logger';
 import { getUserIdAndGroupId } from '../definition';

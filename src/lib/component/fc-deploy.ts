@@ -1,10 +1,9 @@
-
-import * as _ from 'lodash';
 import { Component } from './component';
 import {ServiceConfig} from "../interface/fc-service";
 import {FunctionConfig} from "../interface/fc-function";
 import {TriggerConfig} from "../interface/fc-trigger";
 import {CustomDomainConfig} from "../interface/fc-custom-domain";
+import { lodash as _ } from '@serverless-devs/core';
 
 export class FcDeployComponent extends Component {
   readonly serviceConf: ServiceConfig;

@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import { lodash as _ } from '@serverless-devs/core';
 import { Component } from './component';
 
 export class FcRemoteInvokeComponent extends Component {

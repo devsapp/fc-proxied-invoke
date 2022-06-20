@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import { lodash as _ } from '@serverless-devs/core';
 import { Component } from './component';
 import { ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';

@@ -1,6 +1,6 @@
 import Pop from '@alicloud/pop-core';
 import { throwProcessedPopPermissionError, throwProcessedFCPermissionError } from '../error';
-import * as _ from 'lodash';
+import { lodash as _ } from '@serverless-devs/core';
 import {ICredentials} from "../../common/entity";
 import osLocale from 'os-locale';
 import {isNccPath} from "../utils/path";

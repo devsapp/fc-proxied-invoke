@@ -1,6 +1,5 @@
 import logger from './common/logger';
 import { InputProps, ICredentials } from './common/entity';
-import _ from 'lodash';
 import * as core from '@serverless-devs/core';
 import StdoutFormatter from './lib/component/stdout-formatter';
 import { IProperties } from './lib/interface/fc-tunnel-invoke';
@@ -19,6 +18,8 @@ import { ensureTmpDir } from './lib/utils/path';
 import { Session } from './lib/interface/session';
 import { VpcConfig } from './lib/interface/vpc';
 import { NasConfig } from './lib/interface/nas';
+
+const _ = core.lodash;
 
 export default class FcTunnelInvokeComponent {
   static readonly supportedDebugIde: string[] = ['vscode', 'intellij'];

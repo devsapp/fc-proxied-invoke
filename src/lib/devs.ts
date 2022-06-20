@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import logger from '../common/logger';
 import { FunctionConfig } from './interface/fc-function';
-import _ from 'lodash';
+import {lodash as _} from '@serverless-devs/core';
 import { isCustomContainerRuntime } from './utils/runtime';
 import StdoutFormatter from './component/stdout-formatter';
 

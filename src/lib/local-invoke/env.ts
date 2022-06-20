@@ -1,5 +1,5 @@
 import { NasConfig, MountPoint } from '../interface/nas';
-import * as _ from 'lodash';
+import { lodash as _ } from '@serverless-devs/core';
 import { isAutoConfig } from '../definition';
 import { resolveMountPoint } from './nas';
 import * as path from 'path';

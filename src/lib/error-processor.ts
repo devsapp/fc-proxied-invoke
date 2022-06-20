@@ -7,9 +7,8 @@ const detectMocha = require('detect-mocha');
 import logger from '../common/logger';
 import { Transform } from 'stream';
 import { isDeleteOssTriggerAndContinue } from './prompt';
+import { lodash as _ } from '@serverless-devs/core';
 const { unrefTimeout } = require('./utils/unref-timeout');
-
-const _ = require('lodash');
 
 export class FilterChain {
   processors: Array<any>;
