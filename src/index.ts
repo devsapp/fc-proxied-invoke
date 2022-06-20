@@ -37,7 +37,7 @@ export default class FcTunnelInvokeComponent {
     const args: string = inputs?.args.replace(/(^\s*)|(\s*$)/g, '');
     const curPath: any = inputs?.path;
 
-    const devsPath: string = curPath?.configPath;
+    const devsPath: string = curPath?.configPath || process.cwd();
     const nasBaseDir: string = detectNasBaseDir(devsPath);
     const baseDir: string = path.dirname(devsPath);
 

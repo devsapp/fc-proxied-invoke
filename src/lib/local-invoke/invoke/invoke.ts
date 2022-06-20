@@ -14,7 +14,7 @@ import * as fs from 'fs-extra';
 import { v4 as uuidv4 } from 'uuid';
 import * as rimraf from 'rimraf';
 import extract from 'extract-zip';
-import * as tmpDir from 'temp-dir';
+import tmpDir from 'temp-dir';
 import { DEFAULT_NAS_PATH_SUFFIX } from '../../devs';
 import { isCustomContainerRuntime } from '../../utils/runtime';
 import {ICredentials} from "../../../common/entity";
