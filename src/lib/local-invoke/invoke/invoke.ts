@@ -21,6 +21,7 @@ import {ICredentials} from "../../../common/entity";
 import { writeDebugIdeConfigForVscode } from '../../docker/docker';
 import TunnelService from '../../tunnel-service';
 import {isFalseValue} from "../../utils/utils";
+import { genLayerCodeCachePath, supportLayer } from '../../layer';
 
 
 
@@ -69,6 +70,7 @@ export default class Invoke {
   protected tmpDirMount?: any;
   protected debuggerMount?: any;
   protected passwdMount?: any;
+  protected layerMount: any;
   protected mounts?: any;
   protected nasMappingsMount? : any;
   protected creds: ICredentials;
@@ -109,9 +111,19 @@ export default class Invoke {
     this.debuggerMount = await docker.resolveDebuggerPathToMount(this.debuggerPath);
     this.passwdMount = await docker.resolvePasswdMount();
 
+    // 支持 layer
+    if (!_.isEmpty(this.functionConfig.layers) && supportLayer(this.runtime)) {
+      const layerCachePath = genLayerCodeCachePath(this.baseDir, this.serviceName, this.functionName);
+      this.layerMount = docker.resolveLayerToMounts(layerCachePath);
+    }
+
     // const allMount = _.compact([this.codeMount, ...this.nasMounts, ...this.nasMappingsMount, this.passwdMount]);
     const allMount = _.compact([this.codeMount, ...this.nasMounts, this.passwdMount]);
 
+    if (!_.isEmpty(this.layerMount)) {
+      allMount.push(this.layerMount);
+    }
+    
     if (!_.isEmpty(this.tmpDirMount)) {
       allMount.push(this.tmpDirMount);
     }

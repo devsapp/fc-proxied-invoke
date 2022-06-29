@@ -121,14 +121,14 @@ export default class TunnelService {
             if (this.stdoutFileWriteStream) {
                 this.stdoutFileWriteStream.close((err) => {
                     if (err) {
-                        logger.warning(`Close stdout file of proxy container: ${stdoutFilePath} failed!\nError: ${err}`);
+                        logger.warn(`Close stdout file of proxy container: ${stdoutFilePath} failed!\nError: ${err}`);
                     }
                 });
             }
             if (this.stderrFileWriteStream) {
                 this.stderrFileWriteStream.close((err) => {
                     if (err) {
-                        logger.warning(`Close stderr file of proxy container: ${stderrFilePath} failed!\nError: ${err}`);
+                        logger.warn(`Close stderr file of proxy container: ${stderrFilePath} failed!\nError: ${err}`);
                     }
                 });
             }
@@ -755,7 +755,7 @@ export default class TunnelService {
                 await stopContainer(c);
                 await this.unsetProxyContainerId();
             } catch (e) {
-                logger.warning(StdoutFormatter.stdoutFormatter.warn('stop proxy container', `containerId: ${proxyContainerId}`, e?.message));
+                logger.warn(StdoutFormatter.stdoutFormatter.warn('stop proxy container', `containerId: ${proxyContainerId}`, e?.message));
                 logger.debug(`Stop proxy container: ${proxyContainerId} error: ${e}`);
             }
         }
@@ -789,7 +789,7 @@ export default class TunnelService {
             const fcDeployComponentInputs: InputProps = fcDeployComponent.genComponentInputs('fc-deploy', 'fc-deploy-project', 'service -y', 'remove');
             await fcDeployComponentIns.remove(fcDeployComponentInputs);
         } catch (e) {
-            logger.warning(StdoutFormatter.stdoutFormatter.warn('remove helper service', `serviceName: ${helperServiceConfig?.name}, functionName: ${helperFunctionConfig?.name}`, e?.message));
+            logger.warn(StdoutFormatter.stdoutFormatter.warn('remove helper service', `serviceName: ${helperServiceConfig?.name}, functionName: ${helperFunctionConfig?.name}`, e?.message));
             logger.debug(`Error: ${e}`);
         }
 

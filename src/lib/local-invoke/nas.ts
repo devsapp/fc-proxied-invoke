@@ -12,7 +12,7 @@ export function convertNasConfigToMountCmd(nasConfig: NasConfig | string): any {
   }
 
   if (isNasAuto) {
-    logger.warning(`Remote nas won't be mounted to local when nasConfig is auto.`)
+    logger.warn(`Remote nas won't be mounted to local when nasConfig is auto.`)
   }
 
   if (typeof nasConfig === 'string') {
