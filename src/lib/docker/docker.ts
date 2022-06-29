@@ -175,7 +175,12 @@ export async function generateDockerEnvs(
   if (isCustomContainerRuntime(functionProps.runtime)) {
     return envs;
   }
-  return addEnv(envs, nasConfig);
+
+  return addEnv(envs, {
+    nasConfig,
+    layers: functionProps.layers,
+    runtime: functionProps.runtime,
+  });
 }
 
 function generateFunctionEnvs(functionConfig: FunctionConfig): any {
@@ -341,6 +346,15 @@ function convertNasMappingsToMounts(baseDir: string, nasMappings: any): any {
   });
 }
 
+export function resolveLayerToMounts(absOptDir) {
+  return {
+    Type: 'bind',
+    Source: absOptDir,
+    Target: '/opt',
+    ReadOnly: false
+  };
+}
+
 export async function resolveTmpDirToMount(absTmpDir: string): Promise<any> {
   if (!absTmpDir) {
     return {};
@@ -408,7 +422,7 @@ export async function writeDebugIdeConfigForVscode(
   try {
     await fs.ensureDir(path.dirname(configJsonFilePath));
   } catch (e) {
-    logger.warning(`Ensure directory: ${configJsonFolder} failed.`);
+    logger.warn(`Ensure directory: ${configJsonFolder} failed.`);
     await showDebugIdeTipsForVscode(serviceName, functionName, runtime, codeSource, debugPort);
     logger.debug(`Ensure directory: ${configJsonFolder} failed, error: ${e}`);
     return;
@@ -420,14 +434,14 @@ export async function writeDebugIdeConfigForVscode(
     if (_.isEqual(configInJsonFile, vscodeDebugConfig)) {
       return;
     }
-    logger.warning(`File: ${configJsonFilePath} already exists, please overwrite it with the following config.`);
+    logger.warn(`File: ${configJsonFilePath} already exists, please overwrite it with the following config.`);
     await showDebugIdeTipsForVscode(serviceName, functionName, runtime, codeSource, debugPort);
     return;
   }
   try {
     await fs.writeFile(configJsonFilePath, JSON.stringify(vscodeDebugConfig, null, '  '), { encoding: 'utf8', flag: 'w' });
   } catch (e) {
-    logger.warning(`Write ${configJsonFilePath} failed.`);
+    logger.warn(`Write ${configJsonFilePath} failed.`);
     await showDebugIdeTipsForVscode(serviceName, functionName, runtime, codeSource, debugPort);
     logger.debug(`Write ${configJsonFilePath} failed, error: ${e}`);
   }

@@ -126,7 +126,11 @@ async function resolveLibPaths(confdPath) {
 }
 
 
-export function addEnv(envVars: any, nasConfig?: NasConfig | string) {
+export function addEnv(envVars: any, appendConfig?) {
+  const nasConfig: NasConfig = appendConfig?.nasConfig;
+  const layers: string[] = appendConfig?.layers;
+  const runtime: string = appendConfig?.runtime;
+
   const envs = Object.assign({}, envVars);
 
   const prefix = '/code/.s';
@@ -140,10 +144,27 @@ export function addEnv(envVars: any, nasConfig?: NasConfig | string) {
     envs['PYTHONUSERBASE'] = defaultPythonPath;
   }
 
+  if (!_.isEmpty(layers)) {
+    const genEnv = genLayerEnvs(envs, runtime);
+    Object.assign(envs, genEnv);
+  }
+
   if (nasConfig) {
     return appendNasEnvs(envs, nasConfig);
   }
 
+  return envs;
+}
+
+function genLayerEnvs(envs, runtime: string) {
+  const { NODE_PATH = '', PYTHONUSERBASE } = envs;
+  if (runtime.startsWith('node')) {
+    envs.NODE_PATH = `${NODE_PATH}:/opt/nodejs/${runtime.replace('nodejs', 'node')}/node_modules:/opt/nodejs/node_modules`;
+  } else if (runtime === 'python2.7') {
+    envs['PYTHONUSERBASE'] = `${PYTHONUSERBASE}:/opt/python/lib/python2.7/site-packages:/opt/python`;
+  } else if (runtime === 'python3') {
+    envs['PYTHONUSERBASE'] = `${PYTHONUSERBASE}:/opt/python/lib/python3.6/site-packages:/opt/python`;
+  }
   return envs;
 }
 

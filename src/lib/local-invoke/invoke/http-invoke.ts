@@ -148,7 +148,7 @@ export default class HttpInvoke extends Invoke {
       logger.debug(JSON.stringify(limitedHostConfig));
     } catch (err) {
       logger.debug(err);
-      logger.warning("Try to generate the container's resource limit configuration bug failed. The default configuration of docker will be used.");
+      logger.warn("Try to generate the container's resource limit configuration bug failed. The default configuration of docker will be used.");
       limitedHostConfig = {
         CpuPeriod: null,
         CpuQuota: null,
@@ -242,7 +242,7 @@ export default class HttpInvoke extends Invoke {
           return;
         })
         .catch(async (err) => {
-          logger.warning('Mount nas failed.');
+          logger.warn('Mount nas failed.');
           logger.debug(`Mount nas failed, error is ${err}`);
           logger.info(`Please confirm the following items in s.yaml:
 - VPC has been configured correctly
@@ -324,7 +324,7 @@ For more information about s.yaml configuration, please refer to: https://github
               logger.debug('detect code changes, but no runner found, starting....');
             }
           } catch (e) {
-            logger.warning(`Stop function container failed, please stop it manually.`);
+            logger.warn(`Stop function container failed, please stop it manually.`);
             logger.debug(`Stop function container error: ${e}`);
           }
 
