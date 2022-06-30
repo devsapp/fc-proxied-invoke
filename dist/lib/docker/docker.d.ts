@@ -14,6 +14,12 @@ export declare function runContainer(opts: any, outputStream?: any, errorStream?
 export declare function resolveCodeUriToMount(absCodeUri: string, readOnly?: boolean): Promise<any>;
 export declare function isDockerToolBoxAndEnsureDockerVersion(): Promise<boolean>;
 export declare function resolveNasConfigToMounts(baseDir: string, serviceName: string, nasConfig: NasConfig | string, nasBaseDir: string): Promise<any>;
+export declare function resolveLayerToMounts(absOptDir: any): {
+    Type: string;
+    Source: any;
+    Target: string;
+    ReadOnly: boolean;
+};
 export declare function resolveTmpDirToMount(absTmpDir: string): Promise<any>;
 export declare function resolveDebuggerPathToMount(debuggerPath: string): Promise<any>;
 export declare function resolvePasswdMount(): Promise<any>;
