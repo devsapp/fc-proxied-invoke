@@ -24,6 +24,7 @@ const _ = core.lodash;
 
 export default class FcTunnelInvokeComponent {
   static readonly supportedDebugIde: string[] = ['vscode', 'intellij'];
+  static readonly supportedDebugRuntime: string [] = ['python', 'nodejs', 'java'];
 
   async handlerInputs(inputs: InputProps): Promise<{ [key: string]: any }> {
     await StdoutFormatter.initStdout();
@@ -133,6 +134,9 @@ export default class FcTunnelInvokeComponent {
     const assumeYes: boolean = argsData.y || argsData.assumeYes || argsData['assume-yes'];
 
     const { debugPort, debugIde, debuggerPath, debugArgs } = getDebugOptions(argsData);
+    if (!FcTunnelInvokeComponent.supportedDebugRuntime.includes(functionConfig.runtime) && !_.isEmpty(debugPort)) {
+      throw new core.CatchableError('End cloud intermodulation breakpoint debugging supports three languages: python, nodejs, java');
+    }
     const memorySize: number = argsData['memory-size'];
     if (debugIde && !FcTunnelInvokeComponent.supportedDebugIde.includes(_.toLower(debugIde))) {
       logger.error(`Unsupported ide: ${debugIde} for debugging.Only ${FcTunnelInvokeComponent.supportedDebugIde} are supported`);
