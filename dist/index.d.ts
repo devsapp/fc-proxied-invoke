@@ -1,6 +1,7 @@
 import { InputProps } from './common/entity';
 export default class FcTunnelInvokeComponent {
     static readonly supportedDebugIde: string[];
+    static readonly supportedDebugRuntime: string[];
     handlerInputs(inputs: InputProps): Promise<{
         [key: string]: any;
     }>;
