@@ -63,7 +63,7 @@ export default class FcTunnelInvokeComponent {
     }
 
     const serviceConfig: ServiceConfig = properties?.service;
-    const triggerConfigList: TriggerConfig[] = properties?.triggers;
+    const triggerConfigList: TriggerConfig[] = properties?.triggers?.filter(({ qualifier }: any) => _.isEmpty(qualifier) || _.isEqual(_.toLower(qualifier), 'latest'));
     const customDomainConfigList: CustomDomainConfig[] = properties?.customDomains;
     const functionConfig: FunctionConfig = updateCodeUriWithBuildPath(baseDir, properties?.function, serviceConfig.name);
 
