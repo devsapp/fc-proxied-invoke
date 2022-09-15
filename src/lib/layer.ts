@@ -46,10 +46,9 @@ async function downloadLayer(layerCodeCachePath, layers, credentials, region) {
   const fcLayer = await loadComponent('devsapp/fc-layer');
   const filters = [];
   for (const layerArn of layers) {
-    const [, layerName, version] = layerArn.split('#');
     const inputs = {
       credentials,
-      props: { region, layerName, version }
+      props: { region, arn: layerArn }
     };
     const cachePath = await fcLayer.download(inputs);
     await unzip(cachePath, layerCodeCachePath, {
