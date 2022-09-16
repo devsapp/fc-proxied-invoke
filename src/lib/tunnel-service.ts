@@ -66,8 +66,8 @@ export default class TunnelService {
     private static readonly tunnerServiceHost: string = 'tunnel-service.cn-hangzhou.aliyuncs.com';
     // private static defaultFunctionImage: string = `registry.${TunnelService.defaultRegion}.aliyuncs.com/aliyunfc/ts-remote:v0.2`;
     private static readonly proxyImageName: string = 'ts-local';
-    private static readonly proxyImageStableVersion: string = 'v0.1.1';
-    private static readonly helperImageStableVersion: string = 'v0.1.2'
+    private static readonly proxyImageStableVersion: string = 'v0.1.3';
+    private static readonly helperImageStableVersion: string = 'v0.1.3'
     private static readonly helperImageVersion: string = process.env['TUNNEL_SERVICE_HELPER_IMAGE_LATEST_VERSION'] || TunnelService.helperImageStableVersion;
     private static readonly proxyImageVersion: string = process.env['TUNNEL_SERVICE_PROXY_IMAGE_LATEST_VERSION'] || TunnelService.proxyImageStableVersion;
     private static readonly proxyImageRepo: string = 'aliyunfc';
@@ -371,19 +371,13 @@ export default class TunnelService {
         const helperTriggerConfigList: TriggerConfig[] = this.userTriggerConfigList;
         const helperCustomDomainConfigList: CustomDomainConfig[] = await this.genHelperCustomDomainConfig();
         const fcDeployComponent: FcDeployComponent = new FcDeployComponent(this.region, helperServiceConfig, this.access, this.appName, this.path, helperFunctionConfig, helperTriggerConfigList, helperCustomDomainConfigList);
-        const fcDeployComponentInputs: InputProps = fcDeployComponent.genComponentInputs('fc-deploy', 'fc-deploy-project', '--use-local', 'deploy');
+        const fcDeployComponentInputs: InputProps = fcDeployComponent.genComponentInputs('fc-deploy', 'fc-deploy-project', '--use-local --skip-push', 'deploy');
         const fcDeployComponentIns: any = await core.loadComponent(`devsapp/fc-deploy`);
         
         await promiseRetry(async (retry: any, times: number): Promise<any> => {
             try {
                 const deployRes: any = await fcDeployComponentIns.deploy(fcDeployComponentInputs);
                 await this.saveHelperFunctionDeployRes(deployRes);
-                // 配置预留之前需要调用一下函数 https://github.com/devsapp/fc/issues/664#issuecomment-1073710622
-                try {
-                    const alicloudClient: AlicloudClient = new AlicloudClient(this.credentials);
-                    this.fcClient = await alicloudClient.getFcClient(this.region);
-                    await this.fcClient.invokeFunction(helperServiceConfig.name, helperFunctionConfig.name, '');
-                } catch (_ex) { /* 不阻塞主进程 */ }
 
                 // 设置函数预留为 1，弹性为 0
                 const setHelperVm: any = core.spinner(`Setting helper function with 1 provison and 0 elasticity`);
@@ -544,8 +538,6 @@ export default class TunnelService {
 
     private async setHelperFunctionConfig(serviceName: string, functionName: string): Promise<void> {
         const alias: string = 'LATEST';
-        // Set provision to 1
-        await this.setHelperFunctionProvision(serviceName, functionName, 1, alias);
         // Set elasticity to 0
         const method: string = 'PUT';
         const path: string = `/services/${serviceName}.${alias}/functions/${functionName}/on-demand-config`;
@@ -555,6 +547,16 @@ export default class TunnelService {
         }
         const elasticityRes: any = await this.fcClient.request(method, path, null, JSON.stringify({"maximumInstanceCount": 0}));
         logger.debug(`On-demand config put result: ${elasticityRes?.statusCode}`);
+
+        // 配置预留之前需要调用一下函数 https://github.com/devsapp/fc/issues/664#issuecomment-1073710622
+        try {
+            const alicloudClient: AlicloudClient = new AlicloudClient(this.credentials);
+            this.fcClient = await alicloudClient.getFcClient(this.region);
+            await this.fcClient.invokeFunction(serviceName, functionName, '');
+        } catch (_ex) { /* 不阻塞主进程 */ }
+        
+        // Set provision to 1
+        await this.setHelperFunctionProvision(serviceName, functionName, 1, alias);
     }
     private genOutputFileOfProxyContainer(): any {
         if (!_.isEmpty(this.session)) {
