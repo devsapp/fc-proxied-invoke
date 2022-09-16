@@ -371,7 +371,7 @@ export default class TunnelService {
         const helperTriggerConfigList: TriggerConfig[] = this.userTriggerConfigList;
         const helperCustomDomainConfigList: CustomDomainConfig[] = await this.genHelperCustomDomainConfig();
         const fcDeployComponent: FcDeployComponent = new FcDeployComponent(this.region, helperServiceConfig, this.access, this.appName, this.path, helperFunctionConfig, helperTriggerConfigList, helperCustomDomainConfigList);
-        const fcDeployComponentInputs: InputProps = fcDeployComponent.genComponentInputs('fc-deploy', 'fc-deploy-project', '--use-local --skip-push', 'deploy');
+        const fcDeployComponentInputs: InputProps = fcDeployComponent.genComponentInputs('fc-deploy', 'fc-deploy-project', '--use-local --skip-push -y', 'deploy');
         const fcDeployComponentIns: any = await core.loadComponent(`devsapp/fc-deploy`);
         
         await promiseRetry(async (retry: any, times: number): Promise<any> => {
@@ -550,10 +550,17 @@ export default class TunnelService {
 
         // 配置预留之前需要调用一下函数 https://github.com/devsapp/fc/issues/664#issuecomment-1073710622
         try {
-            const alicloudClient: AlicloudClient = new AlicloudClient(this.credentials);
-            this.fcClient = await alicloudClient.getFcClient(this.region);
-            await this.fcClient.invokeFunction(serviceName, functionName, '');
-        } catch (_ex) { /* 不阻塞主进程 */ }
+            const fcRemoteInvokeComponent: FcRemoteInvokeComponent = new FcRemoteInvokeComponent(this.region, serviceName, this.access, this.appName, this.path, functionName);
+            const inputs: InputProps = fcRemoteInvokeComponent.genComponentInputs('fc-remote-invoke', 'fc-remote-invoke-project', '', 'invoke', this.credentials);
+            const fcRemoteInvokeComponentIns: any = await core.loadComponent(`devsapp/fc-remote-invoke`);
+            await fcRemoteInvokeComponentIns.invoke(inputs);
+            throw new Error('Invoke helper function expect ResourceExhausted, but invoke success');
+        } catch (ex) {
+            // 预期 429: event错误的 code 是 ResourceExhausted; http 错误的 status 是 429
+            if (!(ex.code === 'ResourceExhausted' || ex.statusCode === 429)) {
+                throw ex;
+            }
+        }
         
         // Set provision to 1
         await this.setHelperFunctionProvision(serviceName, functionName, 1, alias);
