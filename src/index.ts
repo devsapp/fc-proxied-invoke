@@ -19,6 +19,8 @@ import { Session } from './lib/interface/session';
 import { VpcConfig } from './lib/interface/vpc';
 import { NasConfig } from './lib/interface/nas';
 import { loadLayer } from './lib/layer';
+import handlerCustom from './lib/utils/handler-custom';
+import { isCustomRuntime } from './lib/utils/runtime';
 
 const _ = core.lodash;
 
@@ -66,6 +68,10 @@ export default class FcTunnelInvokeComponent {
     const triggerConfigList: TriggerConfig[] = properties?.triggers?.filter(({ qualifier }: any) => _.isEmpty(qualifier) || _.isEqual(_.toLower(qualifier), 'latest'));
     const customDomainConfigList: CustomDomainConfig[] = properties?.customDomains;
     const functionConfig: FunctionConfig = updateCodeUriWithBuildPath(baseDir, properties?.function, serviceConfig.name);
+
+    if (isCustomRuntime(functionConfig?.runtime)) {
+      await handlerCustom(functionConfig);
+    }
 
     await loadLayer({ // 加载 layer 的代码
       credentials: creds, region,

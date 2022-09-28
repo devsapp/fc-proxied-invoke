@@ -173,6 +173,7 @@ function genCustomContainerLocalStartOpts(proxyContainerName, name, mounts, cmd,
     Image: imageName,
     name
   };
+  // @ts-ignore
   if (cmd !== []) {
     opts.Cmd = cmd;
   }
