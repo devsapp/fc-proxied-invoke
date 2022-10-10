@@ -7,6 +7,7 @@ export interface FunctionConfig {
     ossKey?: string;
     caPort?: number;
     customContainerConfig?: CustomContainerConfig;
+    customRuntimeConfig?: any;
     handler?: string;
     memorySize?: number;
     runtime: string;

@@ -19,3 +19,8 @@ release-dev: push
 	-git tag -d dev
 	-git push origin :refs/tags/dev
 	gh release create dev --notes "dev release" --target dev --title "Release dev"
+
+ln:
+	rm -rf ~/.s/components/devsapp.cn/devsapp/fc-proxied-invoke/dist
+	ln -s $(shell pwd)/dist ~/.s/components/devsapp.cn/devsapp/fc-proxied-invoke/dist
+	ls -al ~/.s/components/devsapp.cn/devsapp/fc-proxied-invoke 
