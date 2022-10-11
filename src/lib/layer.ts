@@ -4,10 +4,6 @@ import logger from '../common/logger';
 
 const { fse, loadComponent, unzip, lodash: _ } = core;
 
-export const supportLayer = (runtime: string) => {
-  return runtime.startsWith('nodejs') || runtime.startsWith('python');
-}
-
 export const genLayerCodeCachePath = (baseDir, serviceName, functionName) =>
   path.join(baseDir, '.s', 'opt', serviceName, functionName);
 
@@ -15,7 +11,7 @@ export async function loadLayer({
   credentials, region, layers, baseDir, runtime,
   serviceName, functionName,
 }) {
-  if (!supportLayer(runtime) || _.isEmpty(layers)) {
+  if (_.isEmpty(layers)) {
     logger.debug('Skip load layer');
     return;
   }
@@ -46,10 +42,9 @@ async function downloadLayer(layerCodeCachePath, layers, credentials, region) {
   const fcLayer = await loadComponent('devsapp/fc-layer');
   const filters = [];
   for (const layerArn of layers) {
-    const [, layerName, version] = layerArn.split('#');
     const inputs = {
       credentials,
-      props: { region, layerName, version }
+      props: { region, arn: layerArn }
     };
     const cachePath = await fcLayer.download(inputs);
     await unzip(cachePath, layerCodeCachePath, {
