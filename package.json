@@ -23,13 +23,16 @@
     "url": "https://github.com/devsapp/fc-tunnel-invoke"
   },
   "scripts": {
-    "zip": "cd ./src/lib/helper/cleaner/ && npm install && make -C ./ package && cd ../../../../",
+    "preln": "rm -rf ~/.s/components/devsapp.cn/devsapp/fc-proxied-invoke/dist",
+    "ln": "ln -s $(pwd)/dist ~/.s/components/devsapp.cn/devsapp/fc-proxied-invoke/dist",
     "start": "npm run prebuild && npm run watch && npm run zip",
     "watch": "tsc -w",
     "publish": "npm run build && s cli platform publish",
     "prebuild": "rm -rf node_modules && rm -rf package-lock.json && npm i && rimraf dist",
-    "build": "ncc build src/index.ts -m -e @serverless-devs/core -e @alicloud/credentials -o dist && npm run zip",
-    "postbuild": "rm -rf node_modules && rm -rf package-lock.json && npm install @alicloud/credentials"
+    "build": "npm run esbuild && npm run zip",
+    "zip": "cd ./src/lib/helper/cleaner/ && npm install && make -C ./ package && cd ../../../../",
+    "esbuild": "ncc build src/index.ts -m -e @serverless-devs/core -e @alicloud/credentials -o dist",
+    "postbuild": "rm -rf node_modules && rm -rf package-lock.json && npm install @alicloud/credentials --no-save"
   },
   "dependencies": {
     "@alicloud/credentials": "^2.2.3",
