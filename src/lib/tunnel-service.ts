@@ -271,6 +271,7 @@ export default class TunnelService {
             handler: this.userFunctionConfig?.handler,
             timeout: 600,
             memorySize: this.memorySize || 128,
+            caPort: 9000,
             customContainerConfig: {
                 image: `registry.${this.region}.aliyuncs.com/aliyunfc/ts-remote:${TunnelService.helperImageVersion}`
             },
