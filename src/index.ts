@@ -210,6 +210,7 @@ export default class FcTunnelInvokeComponent {
       );
       await localInvoke.setup();
     } catch (ex) {
+      logger.debug(ex);
       try {
         await tunnelService.clean();
       } catch (_ex) {

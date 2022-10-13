@@ -2,7 +2,7 @@ Type: Component
 Name: fc-proxied-invoke
 Provider:
   - 其它
-Version: 0.0.29
+Version: 0.0.30
 Description: 初始化component模板
 HomePage: https://www.serverless-devs.com
 Tags: #标签详情

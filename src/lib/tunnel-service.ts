@@ -182,7 +182,9 @@ export default class TunnelService {
 
         const proxyContainerVm: any = core.spinner(`Starting proxy container...`);
         try {
+            logger.debug('Starting proxy container...');
             await this.runProxyContainer(proxyContainerVm);
+            logger.debug('Proxy container is running...');
             proxyContainerVm.succeed(`Proxy container is running.`);
         } catch (e) {
             proxyContainerVm.fail(`Start proxy container failed.`);
@@ -190,7 +192,9 @@ export default class TunnelService {
         }
         const checkVm: any = core.spinner(`Checking if session is established...`);
         try {
+            logger.debug('Checking if session is established...');
             await this.queryUntilSessionEstablished();
+            logger.debug('Session established!');
             checkVm.succeed(`Session established!`);
         } catch (e) {
             checkVm.fail(`Session establish fail.`);
@@ -591,10 +595,13 @@ export default class TunnelService {
         logger.debug(`Container: ${opts?.name} stdout to: ${stdoutFilePath}, stderr to: ${stderrFilePath}`);
         this.stdoutFileWriteStream = fse.createWriteStream(stdoutFilePath, {flag: 'w+', encoding: 'utf-8', autoClose: true});
         this.stderrFileWriteStream = fse.createWriteStream(stderrFilePath, {flag: 'w+', encoding: 'utf-8', autoClose: true});
+        logger.debug('create file stream success');
         const proxyContainer: any = await runContainer(opts, this.stdoutFileWriteStream, this.stderrFileWriteStream);
+        logger.debug('runContainer success');
         this.streamOfRunner = proxyContainer?.stream;
         this.runner = proxyContainer?.container;
         await this.saveProxyContainerId(this.runner?.id);
+        logger.debug(`saveProxyContainerId success: ${this.runner?.id}`);
     }
 
     private async saveProxyContainerId(containerId: string): Promise<any> {
