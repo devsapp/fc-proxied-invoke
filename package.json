@@ -28,11 +28,11 @@
     "start": "npm run prebuild && npm run watch && npm run zip",
     "watch": "tsc -w",
     "publish": "npm run build && s cli platform publish",
-    "prebuild": "rm -rf node_modules && rm -rf package-lock.json && npm i && rimraf dist",
+    "prebuild": "rm -rf node_modules && npm i && rimraf dist",
     "build": "npm run esbuild && npm run zip",
     "zip": "cd ./src/lib/helper/cleaner/ && npm install && make -C ./ package && cd ../../../../",
     "esbuild": "ncc build src/index.ts -m -e @serverless-devs/core -e @alicloud/credentials -o dist",
-    "postbuild": "rm -rf node_modules && rm -rf package-lock.json && npm install --production"
+    "postbuild": "rm -rf node_modules && npm install --production"
   },
   "dependencies": {
     "@alicloud/credentials": "^2.2.3"

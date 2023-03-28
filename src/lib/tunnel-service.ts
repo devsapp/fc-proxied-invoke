@@ -1,16 +1,16 @@
 import logger from '../common/logger';
 import * as core from '@serverless-devs/core';
 import { Session } from './interface/session';
-import {ICredentials, InputProps} from "../common/entity";
-import {AlicloudClient} from "./client/client";
-import {ServiceConfig} from "./interface/fc-service";
-import {FunctionConfig} from "./interface/fc-function";
+import { ICredentials, InputProps } from "../common/entity";
+import { AlicloudClient } from "./client/client";
+import { ServiceConfig } from "./interface/fc-service";
+import { FunctionConfig } from "./interface/fc-function";
 import * as YAML from 'js-yaml';
-import {FcDeployComponent} from "./component/fc-deploy";
+import { FcDeployComponent } from "./component/fc-deploy";
 import { sleep } from './utils/time';
-import {pullImageIfNeed, runContainer, stopContainer} from "./docker/docker";
+import { pullImageIfNeed, runContainer, stopContainer } from "./docker/docker";
 import nestedObjectAssign from 'nested-object-assign';
-import {mark} from "./utils/utils";
+import { mark } from "./utils/utils";
 import * as path from 'path';
 import * as os from 'os';
 import * as fse from 'fs-extra';
@@ -24,18 +24,18 @@ import {
     DeleteSessionResponseBody
 } from '@alicloud/tunnel-service20210509';
 import Client from '@alicloud/tunnel-service20210509';
-import {TriggerConfig} from "./interface/fc-trigger";
-import {genProxyContainerName, getHttpTrigger} from "./definition";
-import {setSigint} from "./utils/process";
-import {writeEventToStreamAndClose} from "./utils/stream";
-import {CustomDomainConfig, RouteConfig} from "./interface/fc-custom-domain";
-import {FcRemoteInvokeComponent} from "./component/fc-remote-invoke";
-import {setKVInState, unsetKVInState} from "./utils/devs";
+import { TriggerConfig } from "./interface/fc-trigger";
+import { genProxyContainerName, getHttpTrigger } from "./definition";
+import { setSigint } from "./utils/process";
+import { writeEventToStreamAndClose } from "./utils/stream";
+import { CustomDomainConfig, RouteConfig } from "./interface/fc-custom-domain";
+import { FcRemoteInvokeComponent } from "./component/fc-remote-invoke";
+import { setKVInState, unsetKVInState } from "./utils/devs";
 import Docker from 'dockerode';
-import {isCustomContainerRuntime, isCustomRuntime} from "./utils/runtime";
+import { isCustomContainerRuntime, isCustomRuntime } from "./utils/runtime";
 import StdoutFormatter from "./component/stdout-formatter";
-import {processMakeHelperFunctionErr} from "./error-processor";
-import {promiseRetry} from "./retry";
+import { processMakeHelperFunctionErr } from "./error-processor";
+import { promiseRetry } from "./retry";
 import { getHelperConfigFromState, getProxyContainerIdFromState, getSessionFromState, getInvokeContainerIdFromState, unsetInvokeContainerId } from './utils/state';
 import { FcApiComponent } from './component/fc-api'
 import { deployCleaner } from './helper/deploy';
@@ -144,7 +144,7 @@ export default class TunnelService {
         try {
             await promiseRetry(async (retry: any, times: number): Promise<any> => {
                 try {
-                    this.session  = await this.createSession();
+                    this.session = await this.createSession();
                     createSessionVm.succeed(`Session created, session id: ${this.session.sessionId}.`);
                     await this.saveSession();
                     return;
@@ -205,8 +205,8 @@ export default class TunnelService {
 
     private async makeCleanerFunction() {
         if (!this.fcClient) {
-          const alicloudClient: AlicloudClient = new AlicloudClient(this.credentials);
-          this.fcClient = await alicloudClient.getFcClient(this.region);
+            const alicloudClient: AlicloudClient = new AlicloudClient(this.credentials);
+            this.fcClient = await alicloudClient.getFcClient(this.region);
         }
         await deployCleaner(this.fcClient, this.credentials);
     }
@@ -257,7 +257,7 @@ export default class TunnelService {
         delete helperServiceConfig.nasConfig;
 
         // 删除 auto 的 logconfig 配置
-        if(helperServiceConfig.logConfig && (helperServiceConfig.logConfig === 'auto' || helperServiceConfig.logConfig === 'Auto')) {
+        if (helperServiceConfig.logConfig && (helperServiceConfig.logConfig === 'auto' || helperServiceConfig.logConfig === 'Auto')) {
             delete helperServiceConfig.logConfig;
         }
         return helperServiceConfig;
@@ -293,6 +293,8 @@ export default class TunnelService {
                 }
             });
         }
+        // Fix: https://github.com/devsapp/fc/issues/954
+        /**
         if (this.userFunctionConfig?.initializationTimeout && this.userFunctionConfig?.initializer) {
             Object.assign(helperFunctionConfig, {
                 initializationTimeout: this.userFunctionConfig?.initializationTimeout,
@@ -304,6 +306,7 @@ export default class TunnelService {
                 instanceLifecycleConfig: this.userFunctionConfig?.instanceLifecycleConfig,
             });
         }
+        */
         if (this.userFunctionConfig?.instanceConcurrency) {
             Object.assign(helperFunctionConfig, {
                 instanceConcurrency: this.userFunctionConfig?.instanceConcurrency
@@ -339,7 +342,7 @@ export default class TunnelService {
             }
             // 如果是 auto，自动生成的域名， 不是使用代理 service 和 function 生成的 domain
             // 而是固定的， 使用 s.yaml 本身 service 和 function 生成 domain
-            if (domain.domainName.toLowerCase() === 'auto'){
+            if (domain.domainName.toLowerCase() === 'auto') {
                 const fcDomain = await core.loadComponent('devsapp/domain');
                 let inputs = {
                     credentials: this.credentials,
@@ -363,7 +366,7 @@ export default class TunnelService {
                     certConfig: domain?.certConfig
                 });
             }
-            console.log('\x1b[35m%s\x1b[0m', `[FC-PROXIED-INVOKE] get helper function ${this.userServiceConfig.name}/${this.userFunctionConfig.name} domainName: ${domain.domainName}`); 
+            console.log('\x1b[35m%s\x1b[0m', `[FC-PROXIED-INVOKE] get helper function ${this.userServiceConfig.name}/${this.userFunctionConfig.name} domainName: ${domain.domainName}`);
             customDomainConfigList.push(domain);
         }
         return customDomainConfigList;
@@ -378,7 +381,7 @@ export default class TunnelService {
         const fcDeployComponent: FcDeployComponent = new FcDeployComponent(this.region, helperServiceConfig, this.access, this.appName, this.path, helperFunctionConfig, helperTriggerConfigList, helperCustomDomainConfigList);
         const fcDeployComponentInputs: InputProps = fcDeployComponent.genComponentInputs('fc-deploy', 'fc-deploy-project', '--use-local --skip-push -y', 'deploy');
         const fcDeployComponentIns: any = await core.loadComponent(`devsapp/fc-deploy`);
-        
+
         await promiseRetry(async (retry: any, times: number): Promise<any> => {
             try {
                 const deployRes: any = await fcDeployComponentIns.deploy(fcDeployComponentInputs);
@@ -393,10 +396,10 @@ export default class TunnelService {
                     setHelperVm.fail(`Fail to set provison and elasticity for helper function.`);
                     throw e;
                 }
-            } catch(e) {
+            } catch (e) {
                 await fcDeployComponentIns.remove(fcDeployComponentInputs);
                 const errProcessRes = await processMakeHelperFunctionErr(e, times, this.assumeYes);
-                if(errProcessRes === 'deleteOssTrigger') {
+                if (errProcessRes === 'deleteOssTrigger') {
                     try {
                         await this.deleteOssTrigger();
                     } catch (e) {
@@ -415,13 +418,13 @@ export default class TunnelService {
         const fcApiComponent: FcApiComponent = new FcApiComponent(this.region, this.access, this.appName, this.path, this.userServiceConfig, this.userFunctionConfig);
         const listServicesInputs: InputProps = fcApiComponent.genComponentInputs('fc-api', 'fc-api-project', '', 'listServices', this.credentials);
         const servicesList = YAML.load(await fcApi.listServices(listServicesInputs));
-        
+
         let functionsList = await Promise.all(
             servicesList.map(async service => {
                 const listFunctionsInputs: InputProps = fcApiComponent.genComponentInputs('fc-api', 'fc-api-project', `--serviceName ${service.serviceName}`, 'listFunctions', this.credentials);
                 let functions = YAML.load(await fcApi.listFunctions(listFunctionsInputs));
                 functions = functions.map(func => {
-                    return {serviceName: service.serviceName, functionName: func.functionName};
+                    return { serviceName: service.serviceName, functionName: func.functionName };
                 })
                 return functions;
             })
@@ -433,25 +436,25 @@ export default class TunnelService {
                 const listTriggersInputs: InputProps = fcApiComponent.genComponentInputs('fc-api', 'fc-api-project', `--functionName ${func.functionName} --serviceName ${func.serviceName}`, 'listTriggers', this.credentials);
                 let triggers = YAML.load(await fcApi.listTriggers(listTriggersInputs));
                 triggers.forEach(trigger => {
-                    Object.assign(trigger, {serviceName: func.serviceName, functionName: func.functionName});
+                    Object.assign(trigger, { serviceName: func.serviceName, functionName: func.functionName });
                 })
                 return triggers;
             })
         )
-        const ossTriggers = _.flatten(triggersList).filter((trigger: any)=> trigger.triggerType === 'oss');
-                
-        let needDeleteOssTriggers = ossTriggers.filter(ossTrigger=>{
-            return _.find(this.userTriggerConfigList, userTrigger => { 
-                return userTrigger.type === 'oss' && 
-                    userTrigger.sourceArn === ossTrigger.sourceArn && 
+        const ossTriggers = _.flatten(triggersList).filter((trigger: any) => trigger.triggerType === 'oss');
+
+        let needDeleteOssTriggers = ossTriggers.filter(ossTrigger => {
+            return _.find(this.userTriggerConfigList, userTrigger => {
+                return userTrigger.type === 'oss' &&
+                    userTrigger.sourceArn === ossTrigger.sourceArn &&
                     userTrigger.config.filter.key.prefix === ossTrigger.triggerConfig.filter.key.prefix;
             });
         })
-        if(_.isEmpty(needDeleteOssTriggers)){
+        if (_.isEmpty(needDeleteOssTriggers)) {
             throw new Error(`Remove oss triggers fail: Unable to locate conflicting trigger. Please remove oss triggers manually: https://fc.console.aliyun.com/fc/overview.`);
         }
-        
-        needDeleteOssTriggers = needDeleteOssTriggers.map(function(trigger) {
+
+        needDeleteOssTriggers = needDeleteOssTriggers.map(function (trigger) {
             trigger.region = trigger.sourceArn.split(':')[2];
             return trigger;
         })
@@ -467,11 +470,11 @@ export default class TunnelService {
             })
         )}`);
 
-        if(this.assumeYes || await isDeleteOssTriggerAndContinue()){
-            const deleteOssTriggerTasks = needDeleteOssTriggers.map(async (trigger: any)=>{
+        if (this.assumeYes || await isDeleteOssTriggerAndContinue()) {
+            const deleteOssTriggerTasks = needDeleteOssTriggers.map(async (trigger: any) => {
                 const deleteTriggerInputs: InputProps = fcApiComponent.genComponentInputs('fc-api', 'fc-api-project',
-                `--region ${trigger.region} --serviceName ${trigger.serviceName} --functionName ${trigger.functionName} --triggerName ${trigger.triggerName}`,
-                'deleteTrigger', this.credentials);
+                    `--region ${trigger.region} --serviceName ${trigger.serviceName} --functionName ${trigger.functionName} --triggerName ${trigger.triggerName}`,
+                    'deleteTrigger', this.credentials);
                 return fcApi.deleteTrigger(deleteTriggerInputs);
             })
 
@@ -479,11 +482,11 @@ export default class TunnelService {
                 const deleteRes = await Promise.all(deleteOssTriggerTasks);
                 logger.debug(deleteRes);
                 logger.info('Trigger ossTrigger delete success');
-            }catch(e){ 
+            } catch (e) {
                 throw e;
             }
-        }else{
-            throw new Error('The operation has been cancelled by the user.');        
+        } else {
+            throw new Error('The operation has been cancelled by the user.');
         }
     }
 
@@ -550,7 +553,7 @@ export default class TunnelService {
             const alicloudClient: AlicloudClient = new AlicloudClient(this.credentials);
             this.fcClient = await alicloudClient.getFcClient(this.region);
         }
-        const elasticityRes: any = await this.fcClient.request(method, path, null, JSON.stringify({"maximumInstanceCount": 0}));
+        const elasticityRes: any = await this.fcClient.request(method, path, null, JSON.stringify({ "maximumInstanceCount": 0 }));
         logger.debug(`On-demand config put result: ${elasticityRes?.statusCode}`);
 
         // 配置预留之前需要调用一下函数 https://github.com/devsapp/fc/issues/664#issuecomment-1073710622
@@ -566,7 +569,7 @@ export default class TunnelService {
                 throw ex;
             }
         }
-        
+
         // Set provision to 1
         await this.setHelperFunctionProvision(serviceName, functionName, 1, alias);
     }
@@ -594,8 +597,8 @@ export default class TunnelService {
         const { stdoutFilePath, stderrFilePath } = this.genOutputFileOfProxyContainer();
         await fse.ensureDir(path.dirname(stdoutFilePath));
         logger.debug(`Container: ${opts?.name} stdout to: ${stdoutFilePath}, stderr to: ${stderrFilePath}`);
-        this.stdoutFileWriteStream = fse.createWriteStream(stdoutFilePath, {flag: 'w+', encoding: 'utf-8', autoClose: true});
-        this.stderrFileWriteStream = fse.createWriteStream(stderrFilePath, {flag: 'w+', encoding: 'utf-8', autoClose: true});
+        this.stdoutFileWriteStream = fse.createWriteStream(stdoutFilePath, { flag: 'w+', encoding: 'utf-8', autoClose: true });
+        this.stderrFileWriteStream = fse.createWriteStream(stderrFilePath, { flag: 'w+', encoding: 'utf-8', autoClose: true });
         logger.debug('create file stream success');
         const proxyContainer: any = await runContainer(opts, this.stdoutFileWriteStream, this.stderrFileWriteStream);
         logger.debug('runContainer success');
@@ -666,19 +669,19 @@ export default class TunnelService {
             debugOpts = this.generateProxyContainerDebugOpts();
         }
         const opts: any = nestedObjectAssign(
-        {
-            Env: this.generateProxyContainerEnv(),
-            Image: imageName,
-            name: containerName,
-            User: '0:0'
-        },
-        ioOpts,
-        hostOpts,
-        debugOpts);
+            {
+                Env: this.generateProxyContainerEnv(),
+                Image: imageName,
+                name: containerName,
+                User: '0:0'
+            },
+            ioOpts,
+            hostOpts,
+            debugOpts);
         const encryptedOpts: any = _.cloneDeep(opts);
         if (encryptedOpts?.Env) {
             const encryptedEnv: any = encryptedOpts.Env.map((e: string) => {
-                if (e.startsWith("TUNNEL_SERVICE_AK_ID") || e.startsWith("TUNNEL_SERVICE_AK_SECRET") ) {
+                if (e.startsWith("TUNNEL_SERVICE_AK_ID") || e.startsWith("TUNNEL_SERVICE_AK_SECRET")) {
                     const keyValueList: string[] = e.split('=');
                     const encrptedVal: string = mark(keyValueList[1]);
                     return `${keyValueList[0]}=${encrptedVal}`;
@@ -713,7 +716,7 @@ export default class TunnelService {
         let res: GetSessionResponse = await this.client.getSession(this.session?.sessionId);
         let state: string = res?.body?.data?.status;
         let retryCnt: number = 0;
-        while(state !== 'ESTABLISHED' && retryCnt < TunnelService.maxRetryCnt) {
+        while (state !== 'ESTABLISHED' && retryCnt < TunnelService.maxRetryCnt) {
             await sleep(3000);
             res = await this.client.getSession(this.session?.sessionId);
             state = res?.body?.data?.status;
@@ -789,12 +792,12 @@ export default class TunnelService {
         }
 
         // 等待预留实例清空
-        if(!this.fcClient) {
+        if (!this.fcClient) {
             const alicloudClient: AlicloudClient = new AlicloudClient(this.credentials);
             this.fcClient = await alicloudClient.getFcClient(this.region);
         }
         let res = await this.fcClient.getProvisionConfig(helperServiceConfig.name, helperFunctionConfig.name, 'LATEST');
-        while(!_.isNil(res.data) && res.data?.current !== 0) {
+        while (!_.isNil(res.data) && res.data?.current !== 0) {
             await sleep(1000);
             res = await this.fcClient.getProvisionConfig(helperServiceConfig.name, helperFunctionConfig.name, 'LATEST');
         }
